@@ -1,0 +1,124 @@
+/* ============================================================
+   LOIRN — DESIGN SYSTEM / TOKENS
+   Manual de marca 2026 · "Vístete con presencia"
+   Estética urbana, limpia y con presencia. Paleta 100% neutra;
+   el contraste (negro / blanco puro) es el único "acento".
+   ============================================================ */
+
+:root {
+  /* ---- Paleta principal (manual · pág. 07) ---- */
+  --loirn-ink:        #1c1c1c; /* R28  G28  B28  · negro de marca      */
+  --loirn-paper:      #ebecec; /* R235 G236 B236 · gris claro / papel  */
+  --loirn-steel:      #4d535f; /* R77  G83  B95  · secundario frío     */
+  --loirn-ash:        #7f8080; /* R127 G128 B128 · secundario neutro   */
+
+  /* ---- Acento de campaña ----
+     Bronce tomado de las piezas de "Básicas". El manual reserva los acentos
+     para campañas y lanzamientos: se usa SOLO en esa sección, en dosis mínimas. */
+  --loirn-gold:       #a9805a;
+  --loirn-gold-lift:  #caa37c;
+
+  /* ---- Extensiones neutras (derivadas, mismo ADN) ---- */
+  --loirn-black:      #0c0c0d;
+  --loirn-ink-800:    #242427;
+  --loirn-ink-700:    #313136;
+  --loirn-white:      #ffffff;
+  --loirn-paper-2:    #f4f4f5;
+  --loirn-paper-3:    #dcdddf;
+  --loirn-line:       #c9cacc;
+
+  /* ---- Roles semánticos: superficie clara (catálogo / producto) ---- */
+  --bg:               var(--loirn-paper);
+  --bg-raised:        var(--loirn-paper-2);
+  --surface:          #ffffff;
+  --text:             var(--loirn-ink);
+  --text-soft:        #55565b;
+  --text-mute:        var(--loirn-ash);
+  --border:           var(--loirn-line);
+  --border-strong:    rgba(28, 28, 28, .16);
+
+  /* ---- Roles semánticos: superficie oscura (hero / nav / footer) ---- */
+  --d-bg:             var(--loirn-black);
+  --d-surface:        var(--loirn-ink-800);
+  --d-text:           var(--loirn-paper);
+  --d-text-soft:      rgba(235, 236, 236, .66);
+  --d-border:         rgba(235, 236, 236, .14);
+
+  /* ---- Glass (tarjeta de producto, ref. imagen 2) ---- */
+  --glass-bg:         linear-gradient(155deg, rgba(255,255,255,.92) 0%, rgba(232,233,235,.62) 46%, rgba(224,225,228,.5) 100%);
+  --glass-border:     rgba(255, 255, 255, .7);
+  --glass-blur:       22px;
+
+  /* ---- Tipografía (fuentes reales de marca, self-hosted) ----
+     GAEROS  -> display urbano, agresivo. Oswald cubre los glifos que le faltan (¿ ¡ ·).
+     Salmond -> cuerpo geométrico (400 / 700). Jost como respaldo métrico. */
+  --font-display: "GAEROS", "Oswald", "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-body:    "Salmond", "Jost", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Texto funcional en mayúsculas (nav, botones, labels, chips): Salmond,
+     legible en tamaños chicos y con acentos correctos. */
+  --font-label:   "Salmond", "Oswald", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "Space Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, monospace;
+
+  /* Escala fluida (min · vw · max) */
+  /* GAEROS es muy condensada: los tamaños display suben ~15% para
+     recuperar presencia; los micro-labels suben y ganan tracking. */
+  --fs-100: .75rem;                                  /* 12px · códigos, meta        */
+  --fs-200: .875rem;                                 /* 14px · labels / botones     */
+  --fs-300: .96875rem;                               /* 15.5px · cuerpo (Salmond)   */
+  --fs-400: 1.09375rem;                              /* 17.5px · cuerpo destacado   */
+  /* GAEROS es ultra-condensada → los tamaños display van generosos */
+  --fs-500: clamp(1.6rem, 1.1rem + 1.9vw, 2.3rem);  /* subtítulos                  */
+  --fs-600: clamp(2.4rem, 1.5rem + 3.6vw, 3.9rem);  /* títulos de sección          */
+  --fs-700: clamp(3.4rem, 1.5rem + 7.6vw, 7rem);    /* headline                    */
+  --fs-800: clamp(4.4rem, 0.2rem + 16vw, 12rem);    /* display / marquee           */
+  --fs-hero: clamp(4rem, -2rem + 26vw, 22rem);       /* logotipo héroe              */
+
+  --lh-tight: 0.9;
+  --lh-snug:  1.05;
+  --lh-body:  1.62;
+
+  --tracking-display: 0.01em;   /* condensada: darle aire, no apretarla */
+  --tracking-label:   0.24em;
+  --tracking-mega:    0.03em;
+
+  /* ---- Espaciado (base 4) ---- */
+  --sp-1: .25rem;  --sp-2: .5rem;   --sp-3: .75rem;  --sp-4: 1rem;
+  --sp-5: 1.5rem;  --sp-6: 2rem;    --sp-7: 3rem;    --sp-8: 4rem;
+  --sp-9: 6rem;    --sp-10: 8rem;   --sp-11: 12rem;
+
+  --page-max: 1440px;
+  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+
+  /* ---- Radios ---- */
+  --r-xs: 6px;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 28px;      /* tarjeta de producto */
+  --r-xl: 40px;
+  --r-pill: 999px;
+
+  /* ---- Sombras ---- */
+  --sh-sm:  0 1px 2px rgba(12,12,13,.06), 0 2px 8px rgba(12,12,13,.05);
+  --sh-md:  0 6px 20px rgba(12,12,13,.10), 0 2px 6px rgba(12,12,13,.06);
+  --sh-lg:  0 24px 60px rgba(12,12,13,.16), 0 8px 24px rgba(12,12,13,.10);
+  --sh-glass: 0 40px 80px -24px rgba(12,12,13,.28), inset 0 1px 0 rgba(255,255,255,.9);
+  --sh-inset-pill: inset 0 0 0 1px rgba(255,255,255,.75), 0 1px 3px rgba(12,12,13,.12);
+
+  /* ---- Movimiento ---- */
+  --ease-out:  cubic-bezier(.16, 1, .3, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --dur-1: .18s;
+  --dur-2: .32s;
+  --dur-3: .6s;
+
+  /* progreso de scroll del héroe (0 arriba · 1 tras el primer viewport) */
+  --p: 0;
+
+  --header-h: 68px;
+
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}

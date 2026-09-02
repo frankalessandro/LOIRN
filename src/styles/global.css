@@ -1,0 +1,382 @@
+@import "./tokens.css";
+
+/* ============================================================
+   FUENTES DE MARCA (self-hosted · /public/fonts)
+   GAEROS  → display agresivo (le faltan ¿ ¡ · → caen a Oswald)
+   Salmond → cuerpo geométrico (Regular + Bold)
+   ============================================================ */
+@font-face {
+  font-family: "GAEROS";
+  src: url("/fonts/GAEROSRegular.woff2") format("woff2"),
+       url("/fonts/GAEROSRegular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  /* GAEROS dibuja las mayúsculas display SIN tilde (igual que el manual de marca:
+     "TIPOGRAFIAS", "FOTOGRAFIA..."). Se respeta ese estilo en titulares.
+     Solo ¿ ¡ · —que GAEROS no tiene— caen a Oswald. El texto funcional usa
+     Salmond (--font-label), que sí lleva acentos correctos. */
+  unicode-range: U+0000-00A0, U+00A2-00B6, U+00B8-00BE, U+00C0-024F,
+                 U+2013-2014, U+2018-201F, U+2022, U+20AC;
+}
+@font-face {
+  font-family: "Salmond";
+  src: url("/fonts/Salmond-Regular.woff2") format("woff2"),
+       url("/fonts/Salmond-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Salmond";
+  src: url("/fonts/Salmond-Bold.woff2") format("woff2"),
+       url("/fonts/Salmond-Bold.woff") format("woff");
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-300);
+  line-height: var(--lh-body);
+  font-weight: 400;
+  font-synthesis: none; /* GAEROS es de un solo peso: nada de negritas falsas */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+img, svg, video { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; }
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; padding: 0; }
+::selection { background: var(--loirn-ink); color: var(--loirn-paper); }
+
+:focus-visible {
+  outline: 2px solid var(--loirn-ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   TIPOGRAFÍA — jerarquía del manual (pág. 08)
+   título · subtítulo · cuerpo · frase de campaña · código · precio · CTA
+   ============================================================ */
+.u-display,
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
+}
+h1 { font-size: var(--fs-700); }
+h2 { font-size: var(--fs-600); }
+h3 { font-size: var(--fs-500); font-weight: 500; }
+
+.u-kicker {           /* frase de campaña / label técnico */
+  font-family: var(--font-label);
+  font-weight: 400;
+  font-size: var(--fs-200);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+.u-code {             /* códigos, SKU, drop */
+  font-family: var(--font-mono);
+  font-size: var(--fs-100);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.u-price {            /* precio — GAEROS role */
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+.u-lede {
+  font-size: var(--fs-400);
+  color: var(--text-soft);
+  max-width: 46ch;
+}
+
+/* ============================================================
+   LAYOUT UTILITIES
+   ============================================================ */
+.wrap {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section { padding-block: clamp(3.5rem, 8vw, 8rem); }
+.stack > * + * { margin-top: var(--sp-4); }
+.cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+
+/* Encabezado de sección editorial */
+.section-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: var(--sp-5); flex-wrap: wrap;
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-7);
+}
+.section-head h2 { font-size: var(--fs-600); }
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn {
+  --_bg: var(--loirn-ink);
+  --_fg: var(--loirn-paper);
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-2);
+  padding: .95em 1.6em;
+  background: var(--_bg);
+  color: var(--_fg);
+  font-family: var(--font-label);
+  font-weight: 400;
+  font-size: var(--fs-300);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-radius: var(--r-pill);
+  transition: transform var(--dur-1) var(--ease-out),
+              background var(--dur-2) var(--ease-out),
+              color var(--dur-2) var(--ease-out);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn--ghost {
+  --_bg: transparent; --_fg: var(--loirn-ink);
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.btn--light { --_bg: var(--loirn-paper); --_fg: var(--loirn-ink); }
+.btn--block { display: flex; width: 100%; }
+.btn--lg { padding: 1.15em 2em; font-size: var(--fs-400); }
+
+/* pill de vidrio (elige talla / 3D) */
+.glass-pill {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: .85em 1.15em;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: var(--r-pill);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--sh-inset-pill);
+  font-family: var(--font-label);
+  font-weight: 400;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: var(--fs-300);
+  color: var(--loirn-ink);
+  transition: background var(--dur-1) var(--ease-out);
+}
+.glass-pill:hover { background: rgba(255,255,255,.8); }
+
+.icon-btn {
+  display: inline-grid; place-items: center;
+  width: 44px; height: 44px;
+  border-radius: var(--r-pill);
+  color: var(--loirn-ink);
+  transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+}
+.icon-btn:hover { background: rgba(28,28,28,.07); transform: translateY(-1px); }
+.icon-btn.is-on { background: var(--loirn-ink); color: var(--loirn-paper); }
+.icon-btn--glass {
+  background: rgba(255,255,255,.6);
+  border: 1px solid rgba(255,255,255,.85);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--sh-inset-pill);
+}
+
+/* badge de descuento */
+.badge-disc {
+  display: inline-flex; align-items: center;
+  padding: .4em .8em;
+  background: var(--loirn-ink);
+  color: var(--loirn-paper);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-300);
+  letter-spacing: .06em;
+}
+
+/* chip de vendedor / colección */
+.seller {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  font-family: var(--font-label);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: var(--fs-200);
+  color: var(--text-soft);
+}
+.seller__avatar {
+  width: 26px; height: 26px; border-radius: var(--r-pill);
+  display: grid; place-items: center;
+  background: var(--loirn-ink); color: var(--loirn-paper);
+  font-size: 12px; font-weight: 600;
+}
+
+/* marquee "vístete con presencia" */
+.marquee {
+  --gap: 3rem;
+  overflow: hidden;
+  border-block: 1px solid currentColor;
+  padding-block: .35em;
+  display: flex;
+}
+.marquee__track {
+  display: flex; align-items: center; gap: var(--gap);
+  padding-right: var(--gap);
+  flex-shrink: 0;
+  min-width: 100%;
+  animation: marquee 26s linear infinite;
+}
+.marquee span {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-500);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mega);
+  white-space: nowrap;
+}
+.marquee span::after { content: "✦"; margin-left: var(--gap); opacity: .4; }
+@keyframes marquee { to { transform: translateX(-100%); } }
+
+/* Barra opaca desde el primer frame en páginas sin héroe: evita el
+   parpadeo transparente→sólido mientras el script fija --p tras navegar. */
+body[data-nav="solid"] { --p: 1; }
+
+/* ============================================================
+   VIEW TRANSITIONS — catálogo/inicio ↔ ficha de producto
+   La foto de la prenda es la protagonista: viaja entre la card y
+   la ficha con un "magic move". Ida: entra enfocándose. Vuelta
+   (data-astro-transition="back"): la foto se recoge dentro de su
+   card sin brusquedad. El resto de la página se aparta con un
+   fundido corto que arranca un pelín después para no competir.
+   ============================================================ */
+
+/* ---- página que sale / entra (todo lo que no tiene nombre propio) ---- */
+@keyframes loirn-page-out {
+  to { opacity: 0; transform: scale(.985); filter: brightness(.7); }
+}
+@keyframes loirn-page-in {
+  from { opacity: 0; transform: translateY(20px) scale(.994); }
+  to   { opacity: 1; transform: none; }
+}
+
+::view-transition-group(root) { animation-duration: .55s; }
+::view-transition-old(root) { animation: loirn-page-out .3s var(--ease-out) both; }
+::view-transition-new(root) { animation: loirn-page-in .55s var(--ease-out) .06s both; }
+
+/* vuelta: el listado se "abre hacia afuera" en vez de subir desde abajo */
+@keyframes loirn-page-out-back {
+  to { opacity: 0; transform: translateY(14px) scale(.99); }
+}
+@keyframes loirn-page-in-back {
+  from { opacity: 0; transform: scale(1.008); filter: brightness(.86); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+[data-astro-transition="back"]::view-transition-old(root) {
+  animation: loirn-page-out-back .32s var(--ease-out) both;
+}
+[data-astro-transition="back"]::view-transition-new(root) {
+  animation: loirn-page-in-back .55s var(--ease-out) .04s both;
+}
+
+/* ritmo base para cualquier par con nombre */
+::view-transition-group(*) {
+  animation-duration: .55s;
+  animation-timing-function: cubic-bezier(.4, 0, .16, 1);
+}
+::view-transition-image-pair(*) { animation-duration: .4s; }
+
+/* ---- la barra fija NO participa del barrido de página ----
+   Sale del snapshot `root` (transition:name en Navbar.astro). La barra
+   NUEVA se pinta opaca y quieta desde el primer frame y tapa por completo
+   a la vieja → cero desplazamiento y cero parpadeo (nada de crossfade:
+   dos capas semi-transparentes bajarían la opacidad a mitad de camino).
+   La vieja solo se desvanece por debajo, visible únicamente donde
+   sobresale (p. ej. el logo gigante del inicio). */
+::view-transition-group(site-header) { animation: none; z-index: 60; }
+::view-transition-new(site-header) { animation: none; }
+::view-transition-old(site-header) { animation: vt-fade-out .22s var(--ease-out) both; }
+
+/* ---- la prenda: viaja de la card a la ficha y "enfoca" al aterrizar ----
+   El nombre `product-shot` lo pone un script sobre la card en la que se
+   hace click (ver ProductCard.astro); la ficha lo lleva fijo. */
+::view-transition-group(product-shot) {
+  animation-duration: .64s;
+  animation-timing-function: cubic-bezier(.2, .9, .24, 1);
+  z-index: 20;                 /* por encima del fundido de la página */
+}
+::view-transition-old(product-shot) { animation: vt-fade-out .22s var(--ease-out) both; }
+::view-transition-new(product-shot) { animation: vt-shot-in .52s var(--ease-out) both; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-shot-in {
+  0%   { opacity: 0; filter: blur(9px) saturate(1.12); }
+  55%  { opacity: 1; }
+  100% { opacity: 1; filter: blur(0) saturate(1); }
+}
+
+/* ---- el título acompaña, sin salto brusco de tamaño ---- */
+::view-transition-group(product-title) { animation-duration: .5s; z-index: 21; }
+::view-transition-old(product-title) { animation: vt-fade-out .18s var(--ease-out) both; }
+::view-transition-new(product-title) { animation: vt-title-in .5s var(--ease-out) .05s both; }
+@keyframes vt-title-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---- VUELTA: la foto grande se "recoge" dentro de su card ----
+   La vieja (ficha) aguanta visible mientras encoge y cede al final;
+   la nueva (card) entra con un fundido limpio, sin desenfoque. */
+[data-astro-transition="back"]::view-transition-group(product-shot) {
+  animation-timing-function: cubic-bezier(.35, 0, .2, 1);
+}
+[data-astro-transition="back"]::view-transition-old(product-shot) {
+  animation: vt-retract-out .5s var(--ease-out) both;
+}
+[data-astro-transition="back"]::view-transition-new(product-shot) {
+  animation: vt-fade-in .46s var(--ease-out) .06s both;
+}
+[data-astro-transition="back"]::view-transition-old(product-title) {
+  animation: vt-retract-out .4s var(--ease-out) both;
+}
+[data-astro-transition="back"]::view-transition-new(product-title) {
+  animation: vt-fade-in .42s var(--ease-out) .06s both;
+}
+@keyframes vt-retract-out {
+  0%, 55% { opacity: 1; }
+  100%    { opacity: 0; }
+}
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+}
+
+/* reveal on scroll — only hide when JS is active (progressive enhancement) */
+.js [data-reveal] {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+.js [data-reveal].is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] { opacity: 1; transform: none; }
+}
