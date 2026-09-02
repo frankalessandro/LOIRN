@@ -1,0 +1,116 @@
+---
+interface Props {
+  image?: string;
+  kicker?: string;
+  statement?: string;
+  cta?: { label: string; href: string };
+}
+const {
+  image = "/hero.svg",
+  kicker = "SS2026 · Drop 01 — Out now",
+  statement = "No es solo ropa, es presencia.",
+  cta = { label: "Shop now", href: "/catalogo" },
+} = Astro.props;
+---
+
+<section class="hero" data-hero>
+  <img class="hero__bg" src={image} alt="" fetchpriority="high" />
+  <div class="hero__scrim"></div>
+
+  <!-- El logotipo imponente vive en el Navbar (.header-brand): parte gigante
+       centrado aquí y se encoge/sube hasta su sitio en la barra con el scroll. -->
+  <h1 class="sr-only">LOIRN — Vístete con presencia</h1>
+
+  <div class="hero__foot wrap">
+    <div class="hero__copy">
+      <p class="u-kicker hero__kicker">{kicker}</p>
+      <p class="hero__statement">{statement}</p>
+      <a class="btn btn--light btn--lg" href={cta.href}>{cta.label}</a>
+    </div>
+
+    <a href="#drop" class="hero__cue" aria-label="Ver la colección">
+      <span class="u-code">Scroll</span>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M6 13l6 6 6-6"></path>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 640px;
+    height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: clip;
+    background: var(--d-bg);
+    isolation: isolate;
+  }
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* leve parallax + oscurecido al hacer scroll */
+    transform: scale(calc(1.06 + var(--p) * 0.06)) translateY(calc(var(--p) * 3vh));
+    filter: brightness(calc(0.82 - var(--p) * 0.28)) contrast(1.05);
+    z-index: -2;
+  }
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(120% 80% at 50% 12%, rgba(12,12,13,0) 0%, rgba(12,12,13,.55) 78%),
+      linear-gradient(180deg, rgba(12,12,13,.35) 0%, rgba(12,12,13,0) 26%, rgba(12,12,13,.72) 100%);
+  }
+
+  .hero__foot {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--sp-5);
+    padding-bottom: clamp(1.75rem, 5vh, 3.5rem);
+    color: var(--d-text);
+    opacity: calc(1 - var(--p) * 1.5);
+    transform: translateY(calc(var(--p) * -12px));
+  }
+  .hero__copy { display: grid; gap: var(--sp-4); max-width: 26ch; }
+  .hero__kicker { text-wrap: balance; }
+  .hero__kicker { color: var(--d-text-soft); }
+  .hero__statement {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: var(--tracking-display);
+    font-size: clamp(2.6rem, 1.4rem + 5vw, 5.25rem);
+  }
+
+  .hero__cue {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--d-text-soft);
+  }
+  .hero__cue svg { animation: bob 1.8s var(--ease-in-out) infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  .sr-only,
+  .hero .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  @media (max-width: 720px) {
+    .hero__foot { flex-direction: column; align-items: flex-start; }
+    .hero__cue { display: none; }
+  }
+</style>

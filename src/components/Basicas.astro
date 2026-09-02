@@ -1,0 +1,380 @@
+---
+import promoTrio from "../assets/3 basicas 150.jpeg";
+import promoFits from "../assets/Basica varios fit.jpeg";
+
+const fits = [
+  {
+    name: "Oversize",
+    img: "/basics/fit-oversize.jpg",
+    note: "Caída amplia, hombro caído. La más pedida.",
+    colors: ["Negro", "Blanco", "Hueso"],
+  },
+  {
+    name: "Boxy Fit",
+    img: "/basics/fit-boxy.jpg",
+    note: "Ancha y corta. Cae plana, no se enrolla.",
+    colors: ["Negro", "Blanco", "Hueso"],
+  },
+  {
+    name: "Slim",
+    img: "/basics/fit-slim.jpg",
+    note: "Ajuste limpio al cuerpo. Base para capas.",
+    colors: ["Negro", "Blanco"],
+  },
+];
+---
+
+<section class="basics" data-basics aria-labelledby="basics-title">
+  <div class="wrap basics__intro">
+    <p class="basics__eyebrow" data-reveal><span>Solo por septiembre</span></p>
+    <h2 class="basics__headline" id="basics-title">
+      <span class="basics__l1" data-reveal>Lleva 3 básicas</span>
+      <span
+        class="basics__price"
+        data-reveal
+        data-count
+        data-to="150000"
+        aria-label="150.000 pesos por tres básicas"
+      >$0</span>
+    </h2>
+    <p class="basics__sub" data-reveal>
+      Cualquier corte. Cualquier color. Elige, combina y arma tu trío —
+      la base del sistema LOIRN.
+    </p>
+    <a class="btn btn--light basics__cta" href="/basicas" data-reveal>Arma tu trío</a>
+  </div>
+
+  <div class="wrap basics__promos">
+    <figure class="promo" data-tilt data-reveal>
+      <img
+        src={promoTrio.src}
+        width={promoTrio.width}
+        height={promoTrio.height}
+        alt="Promoción LOIRN: lleva 3 básicas por $150.000, cualquier corte y color"
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="promo__shine" aria-hidden="true"></span>
+      <figcaption><span class="u-kicker">La promo</span>3 × $150.000</figcaption>
+      <a class="promo__link" href="/basicas" aria-label="Ver la promo de 3 básicas por $150.000"></a>
+    </figure>
+
+    <figure class="promo" data-tilt data-reveal>
+      <img
+        src={promoFits.src}
+        width={promoFits.width}
+        height={promoFits.height}
+        alt="Básicas LOIRN en tres cortes: oversize, boxy fit y slim"
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="promo__shine" aria-hidden="true"></span>
+      <figcaption><span class="u-kicker">El sistema</span>3 cortes · 3 colores</figcaption>
+      <a class="promo__link" href="/basicas" aria-label="Ver las básicas en sus tres cortes: oversize, boxy y slim"></a>
+    </figure>
+  </div>
+
+  <div class="wrap basics__fitsHead" data-reveal>
+    <h3>Elige tu fit</h3>
+    <span class="u-code">Negro · Blanco · Hueso</span>
+  </div>
+
+  <ul class="wrap basics__fits">
+    {fits.map((f, i) => (
+      <li class="fit" style={`--i:${i}`} data-reveal>
+        <a href="/basicas" class="fit__media" aria-label={`Ver básicas corte ${f.name}`}>
+          <img src={f.img} width="316" height="574" alt={`Básica LOIRN corte ${f.name}`} loading="lazy" decoding="async" />
+          <span class="fit__index" aria-hidden="true">0{i + 1}</span>
+        </a>
+        <div class="fit__meta">
+          <h4 class="fit__name">{f.name}</h4>
+          <p class="fit__note">{f.note}</p>
+          <ul class="fit__colors">
+            {f.colors.map((c) => <li>{c}</li>)}
+          </ul>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .basics {
+    background: var(--loirn-black);
+    color: var(--d-text);
+    padding-block: clamp(4rem, 10vw, 9rem);
+    overflow: clip;
+  }
+
+  /* ---------- Intro editorial ---------- */
+  .basics__intro { display: grid; justify-items: start; gap: var(--sp-4); max-width: 62rem; }
+
+  .basics__eyebrow {
+    display: flex; align-items: center; gap: var(--sp-3);
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: var(--fs-200);
+    color: var(--loirn-gold-lift);
+  }
+  .basics__eyebrow span { position: relative; }
+  .basics__eyebrow::before,
+  .basics__eyebrow::after {
+    content: ""; height: 1px; width: clamp(1.5rem, 6vw, 4rem);
+    background: linear-gradient(90deg, transparent, var(--loirn-gold));
+  }
+  .basics__eyebrow::after { transform: scaleX(-1); }
+
+  .basics__headline {
+    display: grid; gap: 0.08em;
+    text-transform: uppercase;
+    line-height: 0.84;
+    letter-spacing: 0.01em;
+  }
+  .basics__l1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(3rem, 1.2rem + 8.5vw, 7rem);
+    color: var(--loirn-paper);
+  }
+  .basics__price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(4.2rem, 1rem + 15vw, 12rem);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    background: linear-gradient(174deg, var(--loirn-gold-lift) 8%, #8a6543 46%, var(--loirn-gold-lift) 92%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 2px 20px rgba(169, 128, 90, 0.28));
+  }
+  .basics__sub { color: var(--d-text-soft); font-size: var(--fs-400); max-width: 44ch; }
+  .basics__cta { margin-top: var(--sp-3); }
+
+  /* ---------- Dos piezas de campaña ---------- */
+  .basics__promos {
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 3vw, 2.25rem);
+    perspective: 1400px;
+  }
+  .promo {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: #0c0c0d;
+    border: 1px solid var(--d-border);
+    transform-style: preserve-3d;
+    transition: border-color var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+    /* seguidas por JS con data-tilt */
+    --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 50%;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+  }
+  .promo img {
+    display: block; width: 100%; height: auto;
+    transition: transform 0.9s var(--ease-out);
+  }
+  .promo__shine {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(
+      42% 42% at var(--mx) var(--my),
+      rgba(255, 255, 255, 0.14),
+      transparent 70%
+    );
+    opacity: 0; transition: opacity var(--dur-2) var(--ease-out);
+    mix-blend-mode: soft-light;
+  }
+  .promo figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: baseline; gap: var(--sp-3);
+    padding: 2.4rem 1.4rem 1.2rem;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--fs-400);
+    color: var(--loirn-paper);
+    background: linear-gradient(to top, rgba(12, 12, 13, 0.92), transparent);
+    transform: translateY(101%);
+    transition: transform 0.5s var(--ease-out);
+  }
+  .promo figcaption .u-kicker { color: var(--loirn-gold-lift); }
+  .promo__link { position: absolute; inset: 0; z-index: 2; border-radius: inherit; }
+
+  .promo:hover,
+  .promo:focus-within {
+    border-color: rgba(202, 163, 124, 0.55);
+    box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(202, 163, 124, 0.25);
+  }
+  .promo:hover img,
+  .promo:focus-within img { transform: scale(1.045); }
+  .promo:hover .promo__shine { opacity: 1; }
+  .promo:hover figcaption,
+  .promo:focus-within figcaption { transform: translateY(0); }
+
+  /* ---------- Selector de fit ---------- */
+  .basics__fitsHead {
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--sp-4); flex-wrap: wrap;
+    padding-bottom: var(--sp-4);
+    border-bottom: 1px solid var(--d-border);
+  }
+  .basics__fitsHead h3 { font-size: var(--fs-600); color: var(--loirn-paper); }
+  .basics__fitsHead .u-code { color: var(--d-text-soft); }
+
+  .basics__fits {
+    margin-top: var(--sp-6);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2.5vw, 2rem);
+  }
+  .fit { display: grid; gap: var(--sp-4); align-content: start; }
+  .fit__media {
+    position: relative;
+    display: block;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: #141416;
+    aspect-ratio: 316 / 460;
+    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+  .fit__media img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    transition: transform 0.8s var(--ease-out), filter var(--dur-3) var(--ease-out);
+  }
+  .fit__index {
+    position: absolute; top: 0.6rem; left: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-100);
+    letter-spacing: 0.1em;
+    color: rgba(235, 236, 236, 0.6);
+  }
+  .fit:hover .fit__media { transform: translateY(-8px); box-shadow: var(--sh-lg); }
+  .fit:hover .fit__media img { transform: scale(1.07); }
+
+  .fit__name {
+    position: relative;
+    display: inline-block;
+    font-size: var(--fs-500);
+    color: var(--loirn-paper);
+    text-transform: uppercase;
+  }
+  .fit__name::after {
+    content: ""; position: absolute; left: 0; bottom: -4px;
+    height: 2px; width: 100%;
+    background: var(--loirn-gold);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .fit:hover .fit__name::after { transform: scaleX(1); }
+  .fit__note { color: var(--d-text-soft); font-size: var(--fs-200); margin-top: calc(-1 * var(--sp-2)); }
+
+  .fit__colors { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .fit__colors li {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--fs-100);
+    padding: 0.35em 0.7em;
+    border: 1px solid var(--d-border);
+    border-radius: var(--r-pill);
+    color: rgba(235, 236, 236, 0.78);
+    opacity: 0; transform: translateY(6px);
+    transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out),
+                border-color var(--dur-1) var(--ease-out);
+  }
+  .fit:hover .fit__colors li { opacity: 1; transform: none; }
+  .fit:hover .fit__colors li:nth-child(2) { transition-delay: 0.05s; }
+  .fit:hover .fit__colors li:nth-child(3) { transition-delay: 0.1s; }
+  .fit__colors li:hover { border-color: var(--loirn-gold); color: var(--loirn-paper); }
+
+  /* stagger de entrada para las cards de fit */
+  .basics__fits .fit[data-reveal] { transition-delay: calc(var(--i) * 90ms); }
+
+  @media (max-width: 820px) {
+    .basics__promos { grid-template-columns: 1fr; }
+    .basics__fits { grid-template-columns: 1fr; gap: var(--sp-6); }
+    .fit { grid-template-columns: 130px 1fr; align-items: center; }
+    .fit__media { aspect-ratio: 3 / 4; }
+    .fit__colors li { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .promo, .promo img, .fit__media, .fit__media img { transition: none; transform: none !important; }
+    .promo figcaption { transform: none; position: static; background: none; padding: var(--sp-3) 0 0; }
+    .fit__colors li { opacity: 1; transform: none; }
+  }
+</style>
+
+<script>
+  function initBasics() {
+    const section = document.querySelector<HTMLElement>("[data-basics]");
+    if (!section || (section as any)._wired) return;
+    (section as any)._wired = true;
+
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const fine = matchMedia("(pointer: fine)").matches;
+
+    // -------- contador del precio --------
+    const el = section.querySelector<HTMLElement>("[data-count]");
+    if (el) {
+      const to = parseInt(el.dataset.to || "0", 10);
+      const fmt = (n: number) =>
+        "$" + new Intl.NumberFormat("es-CO").format(Math.round(n));
+      if (reduce) {
+        el.textContent = fmt(to);
+      } else {
+        const run = () => {
+          const dur = 1100;
+          const t0 = performance.now();
+          const tick = (now: number) => {
+            const p = Math.min(1, (now - t0) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = fmt(to * eased);
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        };
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) { run(); io.disconnect(); }
+            }
+          },
+          { threshold: 0.6 }
+        );
+        io.observe(el);
+      }
+    }
+
+    // -------- tilt + brillo que sigue al cursor --------
+    if (fine && !reduce) {
+      section.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
+        const MAX = 4;
+        let raf = 0;
+        const onMove = (ev: PointerEvent) => {
+          const r = card.getBoundingClientRect();
+          const px = (ev.clientX - r.left) / r.width;
+          const py = (ev.clientY - r.top) / r.height;
+          if (raf) return;
+          raf = requestAnimationFrame(() => {
+            raf = 0;
+            card.style.setProperty("--ry", `${(px - 0.5) * MAX * 2}deg`);
+            card.style.setProperty("--rx", `${(0.5 - py) * MAX * 2}deg`);
+            card.style.setProperty("--mx", `${px * 100}%`);
+            card.style.setProperty("--my", `${py * 100}%`);
+          });
+        };
+        const reset = () => {
+          card.style.setProperty("--rx", "0deg");
+          card.style.setProperty("--ry", "0deg");
+        };
+        card.addEventListener("pointermove", onMove);
+        card.addEventListener("pointerleave", reset);
+      });
+    }
+  }
+
+  document.addEventListener("astro:page-load", initBasics);
+</script>

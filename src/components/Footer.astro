@@ -1,0 +1,92 @@
+---
+import logo from "../assets/loirn-logo.png";
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="marquee foot__marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Vístete con presencia</span><span>Vístete con presencia</span>
+      <span>Vístete con presencia</span><span>Vístete con presencia</span>
+    </div>
+    <div class="marquee__track">
+      <span>Vístete con presencia</span><span>Vístete con presencia</span>
+      <span>Vístete con presencia</span><span>Vístete con presencia</span>
+    </div>
+  </div>
+
+  <div class="wrap foot__grid">
+    <div class="foot__brand">
+      <img src={logo.src} width={logo.width} height={logo.height} alt="LOIRN" />
+      <p class="u-code">Cultura urbana · Educación visual · Presencia</p>
+    </div>
+
+    <nav class="foot__col" aria-label="Tienda">
+      <p class="u-kicker">Tienda</p>
+      <a href="/catalogo">Catálogo</a>
+      <a href="/basicas">Básicas · 3 × $150.000</a>
+      <a href="/catalogo">Drop 01 · AW26</a>
+    </nav>
+    <nav class="foot__col" aria-label="El local">
+      <p class="u-kicker">El local</p>
+      <a href="/local">Recorré la tienda</a>
+      <a href="/local">Cómo llegar</a>
+      <a href="https://wa.me/573128752902" target="_blank" rel="noopener">WhatsApp</a>
+    </nav>
+    <nav class="foot__col" aria-label="Social">
+      <p class="u-kicker">Social</p>
+      <a href="https://instagram.com/loirn.co" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@loirn.co" target="_blank" rel="noopener">TikTok</a>
+      <a href="https://wa.me/573128752902" target="_blank" rel="noopener">WhatsApp</a>
+    </nav>
+  </div>
+
+  <div class="wrap foot__base">
+    <span class="u-code">© {year} LOIRN</span>
+    <span class="u-code">Hecho en Colombia</span>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    background: var(--d-bg);
+    color: var(--d-text);
+    padding-top: clamp(3rem, 8vw, 6rem);
+  }
+  .foot__marquee { color: var(--d-text); border-color: var(--d-border); margin-bottom: clamp(2.5rem, 6vw, 5rem); }
+
+  .foot__grid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: var(--sp-6);
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+  .foot__brand img { height: 40px; width: auto; margin-bottom: var(--sp-3); }
+  .foot__brand .u-code { color: var(--d-text-soft); }
+
+  .foot__col { display: grid; gap: var(--sp-2); align-content: start; }
+  .foot__col .u-kicker { color: var(--d-text-soft); margin-bottom: var(--sp-1); }
+  .foot__col a {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--fs-200);
+    color: rgba(235, 236, 236, 0.82);
+    width: max-content;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+  .foot__col a:hover { color: var(--loirn-paper); }
+
+  .foot__base {
+    display: flex;
+    justify-content: space-between;
+    padding-block: var(--sp-5);
+    border-top: 1px solid var(--d-border);
+    color: var(--d-text-soft);
+  }
+
+  @media (max-width: 780px) {
+    .foot__grid { grid-template-columns: 1fr 1fr; }
+    .foot__brand { grid-column: 1 / -1; }
+  }
+</style>
