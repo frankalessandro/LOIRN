@@ -1,0 +1,407 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { products } from "../data/products.js";
+import promoTrio from "../assets/3 basicas 150.jpeg";
+import promoFits from "../assets/Basica varios fit.jpeg";
+
+/* La básica es la capa cero: recomendamos lo que va encima. */
+const layers = products.filter((p) => p.slug !== "estilo-propio-tee");
+
+const fits = [
+  {
+    name: "Oversize",
+    tag: "La más pedida",
+    img: "/basics/fit-oversize.jpg",
+    note: "Caída amplia, hombro caído, largo modular. Domina el look sin esfuerzo.",
+    use: "Sola con denim ancho, o de base bajo una bomber.",
+    colors: ["Negro", "Blanco", "Hueso"],
+  },
+  {
+    name: "Boxy Fit",
+    tag: "Estructura",
+    img: "/basics/fit-boxy.jpg",
+    note: "Ancha y corta. Cae plana, no se enrolla, marca cintura con pantalón alto.",
+    use: "Con cargo o sastre. Media adentro adelante.",
+    colors: ["Negro", "Blanco", "Hueso"],
+  },
+  {
+    name: "Slim",
+    tag: "La base",
+    img: "/basics/fit-slim.jpg",
+    note: "Ajuste limpio al cuerpo, sin apretar. La capa cero del sistema.",
+    use: "Debajo de todo: camisas abiertas, chaquetas, knits.",
+    colors: ["Negro", "Blanco"],
+  },
+];
+
+const steps = [
+  ["01", "Elegí 3", "Del catálogo de básicas: oversize, boxy o slim."],
+  ["02", "Iguales o mezcladas", "3 del mismo corte, o una de cada uno. Vos decidís."],
+  ["03", "$150.000", "Te llevás las tres. Solo por septiembre."],
+];
+
+const WA =
+  "https://wa.me/573128752902?text=Quiero%20armar%20mi%20tr%C3%ADo%20de%20b%C3%A1sicas%20LOIRN";
+---
+
+<Layout
+  title="Básicas · 3 × $150.000 — LOIRN"
+  description="El sistema de básicas LOIRN: tres cortes (oversize, boxy y slim) en negro, blanco y hueso. Llevá 3 por $150.000. Solo por septiembre."
+  nav="solid"
+>
+  <section class="bx">
+    <div class="wrap bx__intro">
+      <p class="bx__eyebrow" data-reveal><span>Solo por septiembre</span></p>
+      <h1 class="bx__title" data-reveal>
+        <span>Lleva 3 básicas</span>
+        <span class="bx__price">$150.000</span>
+      </h1>
+      <p class="bx__lede" data-reveal>
+        Las básicas son la capa cero del catálogo LOIRN: la misma camiseta en
+        tres cortes —oversize, boxy y slim— en negro, blanco y hueso. Armá tu
+        trío con 3 iguales o mezcladas, y ponéle encima el resto del sistema.
+      </p>
+      <div class="bx__cta cluster" data-reveal>
+        <a class="btn btn--light btn--lg" href={WA}>Armar mi trío</a>
+        <a class="btn btn--ghost btn--lg bx__ghost" href="/catalogo">Ver el catálogo</a>
+      </div>
+    </div>
+
+    <div class="wrap bx__promos">
+      <figure class="bx__promo" data-reveal>
+        <img
+          src={promoTrio.src}
+          width={promoTrio.width}
+          height={promoTrio.height}
+          alt="Promoción LOIRN: lleva 3 básicas por $150.000, cualquier corte y color"
+          loading="eager"
+          decoding="async"
+        />
+      </figure>
+      <figure class="bx__promo" data-reveal>
+        <img
+          src={promoFits.src}
+          width={promoFits.width}
+          height={promoFits.height}
+          alt="Básicas LOIRN en tres cortes: oversize, boxy fit y slim"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+
+    <ol class="wrap bx__steps">
+      {steps.map(([n, t, d], i) => (
+        <li class="bx__step" style={`--i:${i}`} data-reveal>
+          <span class="bx__stepN">{n}</span>
+          <h2 class="bx__stepT">{t}</h2>
+          <p class="bx__stepD">{d}</p>
+        </li>
+      ))}
+    </ol>
+
+    <div class="wrap bx__fitsHead" data-reveal>
+      <h2>Elige tu fit</h2>
+      <span class="u-code">Negro · Blanco · Hueso</span>
+    </div>
+
+    <ul class="wrap bx__fits">
+      {fits.map((f, i) => (
+        <li class="fit" style={`--i:${i}`} data-reveal>
+          <a class="fit__media" href="/catalogo" aria-label={`Ver básicas corte ${f.name} en el catálogo`}>
+            <img
+              src={f.img}
+              width="316"
+              height="574"
+              alt={`Básica LOIRN corte ${f.name}`}
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="fit__index" aria-hidden="true">0{i + 1}</span>
+            <span class="fit__tag">{f.tag}</span>
+          </a>
+          <div class="fit__meta">
+            <h3 class="fit__name">{f.name}</h3>
+            <p class="fit__note">{f.note}</p>
+            <p class="fit__use"><span class="u-code">Cómo se usa</span>{f.use}</p>
+            <ul class="fit__colors">
+              {f.colors.map((c) => <li>{c}</li>)}
+            </ul>
+            <a class="fit__link" href="/catalogo">Ver en el catálogo →</a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="bx-rest">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="u-kicker">Encima de las básicas</p>
+          <h2>El resto del sistema</h2>
+        </div>
+        <a class="btn btn--ghost" href="/catalogo">Ver todo</a>
+      </div>
+      <div class="bx-rest__grid">
+        {layers.map((p, i) => (
+          <div data-reveal style={`transition-delay:${(i % 3) * 70}ms`}>
+            <ProductCard product={p} share={false} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bx-cta">
+    <div class="wrap bx__foot" data-reveal>
+      <p class="bx__footStatement">Tres piezas.<br /><span>Un sistema.</span></p>
+      <a class="btn btn--light btn--lg" href={WA}>Armar mi trío por WhatsApp</a>
+      <p class="u-code">Retiro en tienda · Palmira &amp; Cali</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .bx {
+    background: var(--loirn-black);
+    color: var(--d-text);
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 5rem));
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+    overflow: clip;
+  }
+
+  /* ---------- intro ---------- */
+  .bx__intro { display: grid; justify-items: start; gap: var(--sp-4); max-width: 60rem; }
+  .bx__eyebrow {
+    display: flex; align-items: center; gap: var(--sp-3);
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-size: var(--fs-200);
+    color: var(--loirn-gold-lift);
+  }
+  .bx__eyebrow::before,
+  .bx__eyebrow::after {
+    content: ""; height: 1px; width: clamp(1.5rem, 6vw, 4rem);
+    background: linear-gradient(90deg, transparent, var(--loirn-gold));
+  }
+  .bx__eyebrow::after { transform: scaleX(-1); }
+
+  .bx__title {
+    display: grid; gap: 0.06em;
+    text-transform: uppercase;
+    line-height: 0.84;
+  }
+  .bx__title > span:first-child {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.8rem, 1.2rem + 7vw, 6rem);
+    color: var(--loirn-paper);
+  }
+  .bx__price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(4rem, 1rem + 14vw, 11rem);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    background: linear-gradient(174deg, var(--loirn-gold-lift) 8%, #8a6543 46%, var(--loirn-gold-lift) 92%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 2px 20px rgba(169, 128, 90, 0.28));
+  }
+  .bx__lede { color: var(--d-text-soft); font-size: var(--fs-400); max-width: 46ch; }
+  .bx__cta { margin-top: var(--sp-3); }
+  .bx__ghost { color: var(--loirn-paper); }
+
+  /* ---------- promos ---------- */
+  .bx__promos {
+    margin-top: clamp(3rem, 7vw, 5.5rem);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+  .bx__promo {
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--d-border);
+    background: #0c0c0d;
+  }
+  .bx__promo img { width: 100%; height: auto; }
+
+  /* ---------- pasos ---------- */
+  .bx__steps {
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--d-border);
+    border: 1px solid var(--d-border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .bx__step {
+    background: var(--loirn-black);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    gap: var(--sp-2);
+    align-content: start;
+    transition-delay: calc(var(--i) * 80ms);
+  }
+  .bx__stepN {
+    font-family: var(--font-mono);
+    font-size: var(--fs-100);
+    color: var(--loirn-gold-lift);
+    letter-spacing: 0.1em;
+  }
+  .bx__stepT { font-size: var(--fs-500); color: var(--loirn-paper); }
+  .bx__stepD { color: var(--d-text-soft); font-size: var(--fs-200); }
+
+  /* ---------- selector de fit ---------- */
+  .bx__fitsHead {
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--sp-4); flex-wrap: wrap;
+    padding-bottom: var(--sp-4);
+    border-bottom: 1px solid var(--d-border);
+  }
+  .bx__fitsHead h2 { font-size: var(--fs-600); color: var(--loirn-paper); }
+  .bx__fitsHead .u-code { color: var(--d-text-soft); }
+
+  .bx__fits {
+    margin-top: var(--sp-6);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2.5vw, 2rem);
+  }
+  .fit { display: grid; gap: var(--sp-4); align-content: start; transition-delay: calc(var(--i) * 90ms); }
+  .fit__media {
+    position: relative;
+    display: block;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: #141416;
+    aspect-ratio: 316 / 420;
+    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+  .fit__media img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .fit__index {
+    position: absolute; top: 0.6rem; left: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-100);
+    letter-spacing: 0.1em;
+    color: rgba(235, 236, 236, 0.6);
+  }
+  .fit__tag {
+    position: absolute; top: 0.6rem; right: 0.8rem;
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: var(--fs-100);
+    padding: 0.3em 0.7em;
+    border-radius: var(--r-pill);
+    background: rgba(12, 12, 13, 0.6);
+    border: 1px solid var(--d-border);
+    color: var(--loirn-gold-lift);
+    backdrop-filter: blur(6px);
+  }
+  .fit:hover .fit__media { transform: translateY(-8px); box-shadow: var(--sh-lg); }
+  .fit:hover .fit__media img { transform: scale(1.06); }
+
+  .fit__name {
+    position: relative; display: inline-block;
+    font-size: var(--fs-500); color: var(--loirn-paper);
+    text-transform: uppercase;
+  }
+  .fit__name::after {
+    content: ""; position: absolute; left: 0; bottom: -4px;
+    height: 2px; width: 100%;
+    background: var(--loirn-gold);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .fit:hover .fit__name::after { transform: scaleX(1); }
+  .fit__note { color: var(--d-text-soft); font-size: var(--fs-200); margin-top: calc(-1 * var(--sp-2)); }
+  .fit__use {
+    font-size: var(--fs-200);
+    color: rgba(235, 236, 236, 0.82);
+    display: grid; gap: 2px;
+    padding-top: var(--sp-2);
+    border-top: 1px solid var(--d-border);
+  }
+  .fit__use .u-code { color: var(--loirn-gold-lift); }
+
+  .fit__colors { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .fit__colors li {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--fs-100);
+    padding: 0.35em 0.7em;
+    border: 1px solid var(--d-border);
+    border-radius: var(--r-pill);
+    color: rgba(235, 236, 236, 0.78);
+  }
+  .fit__colors li:hover { border-color: var(--loirn-gold); color: var(--loirn-paper); }
+
+  .fit__link {
+    margin-top: var(--sp-1);
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: var(--fs-100);
+    color: var(--loirn-gold-lift);
+    width: max-content;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-1) var(--ease-out);
+  }
+  .fit__link:hover { border-color: currentColor; }
+
+  /* ---------- el resto del catálogo (superficie clara) ---------- */
+  .bx-rest {
+    background: var(--bg);
+    color: var(--text);
+    padding-block: clamp(3.5rem, 9vw, 8rem);
+  }
+  .bx-rest__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+
+  /* ---------- cierre ---------- */
+  .bx-cta {
+    background: var(--loirn-black);
+    color: var(--d-text);
+    padding-block: clamp(3.5rem, 9vw, 7rem);
+  }
+  .bx__foot {
+    display: grid; justify-items: center; gap: var(--sp-4);
+    text-align: center;
+  }
+  .bx__footStatement {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 0.9;
+    font-size: var(--fs-700);
+    color: var(--loirn-paper);
+  }
+  .bx__footStatement span { -webkit-text-stroke: 1.5px var(--loirn-gold-lift); color: transparent; }
+  .bx__foot .u-code { color: var(--d-text-soft); }
+
+  @media (max-width: 860px) {
+    .bx__promos { grid-template-columns: 1fr; }
+    .bx__steps { grid-template-columns: 1fr; }
+    .bx__fits { grid-template-columns: 1fr; gap: var(--sp-6); }
+    .fit { grid-template-columns: 132px 1fr; align-items: start; }
+    .fit__media { aspect-ratio: 3 / 4; }
+  }
+  @media (max-width: 460px) {
+    .fit { grid-template-columns: 1fr; }
+  }
+</style>

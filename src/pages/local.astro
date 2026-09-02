@@ -1,0 +1,680 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getImage } from "astro:assets";
+
+import shot04 from "../assets/local/IMG_5304.JPEG";
+import shot05 from "../assets/local/IMG_5305.JPEG";
+import shot06 from "../assets/local/IMG_5306.JPEG";
+import shot07 from "../assets/local/IMG_5307.JPEG";
+import shot08 from "../assets/local/IMG_5308.JPEG";
+import shot09 from "../assets/local/IMG_5309.JPEG";
+import shot10 from "../assets/local/IMG_5310.JPEG";
+import shot11 from "../assets/local/IMG_5311.JPEG";
+
+/* Recorrido: de la calle hacia adentro. Las fotos (fisheye ~9 MB c/u en
+   src/assets/local) se optimizan en build con astro:assets → webp. */
+const rawFrames = [
+  { img: shot10, n: "01", t: "La fachada", d: "Esquina negra y amarilla en el B/ El Prado. Imposible pasarla de largo." },
+  { img: shot04, n: "02", t: "La entrada", d: "Puertas de vidrio. Cruzás y la calle se apaga." },
+  { img: shot11, n: "03", t: "El muro", d: "Roca esculpida y el logo retroiluminado. La foto es acá." },
+  { img: shot08, n: "04", t: "Las gorras", d: "New Era, Supreme y ediciones sueltas. Una por una." },
+  { img: shot07, n: "05", t: "El rack", d: "Jerseys, hoodies de 480 y tees. El sistema entero, colgado." },
+  { img: shot09, n: "06", t: "La mesa", d: "Denim y siluetas sobre la mesa central. Vení a tocar la tela." },
+  { img: shot05, n: "07", t: "El sonido", d: "Tornamesa, vinilos y luz naranja. El local suena mientras mirás." },
+  { img: shot06, n: "08", t: "La cabina", d: "Sillón, espejo y pantalla. Probate con calma, sin afán." },
+];
+
+const frames = await Promise.all(
+  rawFrames.map(async (f) => {
+    const view = await getImage({ src: f.img, width: 1600, format: "webp", quality: 68 });
+    const full = await getImage({ src: f.img, width: 2400, format: "webp", quality: 80 });
+    return { ...f, view, full };
+  })
+);
+
+const heroImg = await getImage({ src: shot11, width: 2400, format: "webp", quality: 76 });
+const frontImg = await getImage({ src: shot10, width: 1600, format: "webp", quality: 74 });
+
+const ADDRESS = "Calle 35a #40-125, B/ El Prado";
+const CITY = "Palmira, Valle del Cauca";
+const Q = encodeURIComponent("Loirn Calle 35a 40-125 El Prado Palmira Valle del Cauca");
+const MAP_EMBED = `https://www.google.com/maps?q=${Q}&z=17&output=embed`;
+const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${Q}`;
+const MAP_VIEW = `https://www.google.com/maps/search/?api=1&query=${Q}`;
+const WA = "https://wa.me/573128752902?text=Hola%2C%20quiero%20pasar%20por%20el%20local%20LOIRN";
+---
+
+<Layout
+  title="El local — LOIRN"
+  description="Visitá el local de LOIRN en Palmira: Calle 35a #40-125, B/ El Prado. Recorré la tienda por dentro y mirá cómo llegar en Google Maps."
+  nav="solid"
+>
+  <!-- ============ PORTADA ============ -->
+  <section class="lc-hero" data-lc-hero>
+    <img class="lc-hero__bg" src={heroImg.src} width={heroImg.attributes.width} height={heroImg.attributes.height} alt="" fetchpriority="high" />
+    <div class="lc-hero__scrim"></div>
+    <div class="wrap lc-hero__inner">
+      <p class="u-kicker lc-hero__kicker" data-reveal>El local · Palmira</p>
+      <h1 class="lc-hero__title" data-reveal>Vení<br />a verlo</h1>
+      <p class="lc-hero__lede" data-reveal>
+        LOIRN no vive solo en pantalla. Hay un local físico, con su propia luz,
+        su música y su muro de roca. Esto es lo que te espera adentro.
+      </p>
+      <div class="lc-hero__cta cluster" data-reveal>
+        <a class="btn btn--light btn--lg" href={MAP_DIRECTIONS} target="_blank" rel="noopener">Cómo llegar</a>
+        <a class="btn btn--ghost btn--lg lc-hero__ghost" href={WA} target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+    <a href="#recorrido" class="lc-hero__cue" aria-label="Empezar el recorrido">
+      <span class="u-code">El recorrido</span>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
+    </a>
+  </section>
+
+  <!-- ============ RECORRIDO ============ -->
+  <section id="recorrido" class="tour" data-tour aria-label="Recorrido por el local">
+    <div class="wrap tour__head">
+      <div data-reveal>
+        <p class="u-kicker">Adentro</p>
+        <h2>El recorrido</h2>
+      </div>
+      <p class="tour__hint u-code" data-reveal>Desliza · arrastra · toca una foto</p>
+    </div>
+
+    <div class="tour__viewport" data-tour-vp tabindex="0">
+      <div class="tour__track" data-tour-track>
+        {frames.map((f, i) => (
+          <figure
+            class="frame"
+            data-frame
+            data-i={i}
+            data-full={f.full.src}
+            data-title={f.t}
+            data-note={f.d}
+          >
+            <img
+              class="frame__img"
+              src={f.view.src}
+              width={f.view.attributes.width}
+              height={f.view.attributes.height}
+              alt={`Local LOIRN — ${f.t}: ${f.d}`}
+              loading={i < 2 ? "eager" : "lazy"}
+              decoding="async"
+              draggable="false"
+            />
+            <button class="frame__open" data-open type="button" aria-label={`Ampliar: ${f.t}`}></button>
+            <figcaption class="frame__cap">
+              <span class="frame__n">{f.n} <span aria-hidden="true">/ {frames.length}</span></span>
+              <span class="frame__t">{f.t}</span>
+              <span class="frame__d">{f.d}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+
+    <div class="wrap tour__hud">
+      <div class="tour__nav">
+        <button class="tour__btn" data-prev type="button" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" /></svg>
+        </button>
+        <button class="tour__btn" data-next type="button" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+        </button>
+      </div>
+      <div class="tour__rail" aria-hidden="true"><span data-rail></span></div>
+      <p class="tour__count u-code"><span data-count>01</span> / {String(frames.length).padStart(2, "0")}</p>
+    </div>
+  </section>
+
+  <!-- ============ DÓNDE ESTAMOS ============ -->
+  <section class="where" aria-labelledby="where-title">
+    <div class="wrap where__grid">
+    <div class="where__info">
+      <p class="u-kicker" data-reveal>Dónde estamos</p>
+      <h2 id="where-title" data-reveal>El Prado,<br />Palmira</h2>
+
+      <ul class="where__facts" data-reveal>
+        <li>
+          <span class="u-code">Dirección</span>
+          <p>{ADDRESS}<br />{CITY}</p>
+        </li>
+        <li>
+          <span class="u-code">Horario</span>
+          <p>Lunes a sábado · 9:00 – 19:00</p>
+        </li>
+        <li>
+          <span class="u-code">Google</span>
+          <p><strong>5.0</strong> <span aria-hidden="true">★★★★★</span> · 12 reseñas</p>
+        </li>
+        <li>
+          <span class="u-code">Sedes</span>
+          <p>Palmira · Cali</p>
+        </li>
+      </ul>
+
+      <div class="where__cta cluster" data-reveal>
+        <a class="btn btn--light" href={MAP_DIRECTIONS} target="_blank" rel="noopener">Cómo llegar</a>
+        <a class="btn btn--ghost where__ghost" href={MAP_VIEW} target="_blank" rel="noopener">Ver en Google Maps</a>
+        <a class="btn btn--ghost where__ghost" href={WA} target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+
+      <figure class="where__front" data-reveal>
+        <img src={frontImg.src} width={frontImg.attributes.width} height={frontImg.attributes.height} alt="Fachada del local LOIRN en la esquina de El Prado, Palmira" loading="lazy" decoding="async" />
+        <figcaption class="u-code">Así se ve por fuera</figcaption>
+      </figure>
+    </div>
+
+    <div class="where__map" data-reveal>
+      <div class="where__mapFrame">
+        <iframe
+          src={MAP_EMBED}
+          title="Mapa: LOIRN, Calle 35a #40-125, El Prado, Palmira"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <a class="where__pin" href={MAP_VIEW} target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.3-7-11a7 7 0 1114 0c0 4.7-7 11-7 11z" /><circle cx="12" cy="10" r="2.6" /></svg>
+        Abrir la ubicación
+      </a>
+    </div>
+    </div>
+  </section>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div class="lb" data-lb hidden>
+    <button class="lb__x" data-lb-close type="button" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+    <button class="lb__arw lb__arw--prev" data-lb-prev type="button" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" /></svg>
+    </button>
+    <figure class="lb__stage">
+      <img class="lb__img" data-lb-img src="" alt="" />
+      <figcaption class="lb__cap">
+        <span class="lb__t" data-lb-title></span>
+        <span class="lb__d" data-lb-note></span>
+      </figcaption>
+    </figure>
+    <button class="lb__arw lb__arw--next" data-lb-next type="button" aria-label="Siguiente">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" /></svg>
+    </button>
+  </div>
+</Layout>
+
+<style>
+  /* ================= PORTADA ================= */
+  .lc-hero {
+    position: relative;
+    min-height: 560px;
+    height: 92svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: clip;
+    background: var(--loirn-black);
+    isolation: isolate;
+  }
+  .lc-hero__bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    transform: scale(1.08);
+    animation: lc-kb 22s var(--ease-in-out) infinite alternate;
+  }
+  @keyframes lc-kb {
+    from { transform: scale(1.06) translate3d(0, 0, 0); }
+    to   { transform: scale(1.16) translate3d(-2%, -2%, 0); }
+  }
+  .lc-hero__scrim {
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(120% 80% at 30% 20%, rgba(12,12,13,0) 0%, rgba(12,12,13,.5) 75%),
+      linear-gradient(180deg, rgba(12,12,13,.55) 0%, rgba(12,12,13,0) 30%, rgba(12,12,13,.82) 100%);
+  }
+  .lc-hero__inner {
+    width: 100%;
+    padding-bottom: clamp(3.5rem, 9vh, 6rem);
+    color: var(--d-text);
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-4);
+  }
+  .lc-hero__kicker { color: var(--loirn-paper); opacity: .82; }
+  .lc-hero__title {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 0.82;
+    letter-spacing: var(--tracking-display);
+    font-size: clamp(3.4rem, 1.4rem + 9vw, 8.5rem);
+    color: var(--loirn-paper);
+  }
+  .lc-hero__lede { color: var(--d-text-soft); font-size: var(--fs-400); max-width: 40ch; }
+  .lc-hero__cta { margin-top: var(--sp-3); }
+  .lc-hero__ghost { color: var(--loirn-paper); }
+  .lc-hero__cue {
+    position: absolute; right: var(--gutter); bottom: clamp(1.5rem, 5vh, 3rem);
+    display: inline-flex; flex-direction: column; align-items: center; gap: .4rem;
+    color: rgba(235, 236, 236, .7);
+  }
+  .lc-hero__cue svg { animation: lc-bob 1.8s var(--ease-in-out) infinite; }
+  @keyframes lc-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  /* ================= RECORRIDO ================= */
+  .tour {
+    background: var(--loirn-black);
+    color: var(--d-text);
+    padding-block: clamp(3.5rem, 9vw, 8rem);
+    overflow: clip;
+  }
+  .tour__head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: var(--sp-5); flex-wrap: wrap;
+    margin-bottom: clamp(1.5rem, 4vw, 2.75rem);
+  }
+  .tour__head h2 { font-size: var(--fs-600); color: var(--loirn-paper); }
+  .tour__head .u-kicker { color: var(--loirn-gold-lift); }
+  .tour__hint { color: var(--d-text-soft); }
+
+  .tour__viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .tour__viewport::-webkit-scrollbar { display: none; }
+  .tour__viewport.is-drag { cursor: grabbing; }
+  .tour__viewport:focus-visible { outline: 2px solid var(--loirn-gold-lift); outline-offset: 4px; }
+
+  .tour__track {
+    display: flex;
+    gap: clamp(.85rem, 2vw, 1.6rem);
+    padding-inline: var(--gutter);
+    width: max-content;
+  }
+
+  .frame {
+    position: relative;
+    flex: 0 0 min(74vw, 1060px);
+    aspect-ratio: 16 / 10;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: #141416;
+    scroll-snap-align: center;
+    border: 1px solid var(--d-border);
+  }
+  .frame__img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: translate3d(var(--px, 0), 0, 0) scale(1.12);
+    transition: transform .6s var(--ease-out);
+    user-select: none;
+  }
+  .frame.is-active .frame__img {
+    transform: translate3d(var(--px, 0), 0, 0) scale(1.2);
+    transition: transform 9s var(--ease-out);
+  }
+  .frame__open {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    background: none; border: 0; cursor: zoom-in;
+  }
+  .frame__cap {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    display: grid; gap: .15rem;
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1.1rem, 3vw, 2rem) clamp(1rem, 3vw, 1.6rem);
+    background: linear-gradient(to top, rgba(12,12,13,.92) 12%, rgba(12,12,13,0));
+    color: var(--loirn-paper);
+    pointer-events: none;
+    transform: translateY(12px);
+    opacity: 0;
+    transition: transform .5s var(--ease-out), opacity .5s var(--ease-out);
+  }
+  .frame.is-active .frame__cap { transform: none; opacity: 1; }
+  .frame__n { font-family: var(--font-mono); font-size: var(--fs-100); color: var(--loirn-gold-lift); letter-spacing: .12em; }
+  .frame__n span { opacity: .5; }
+  .frame__t {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: var(--fs-500);
+    line-height: 1;
+  }
+  .frame__d { font-size: var(--fs-200); color: rgba(235, 236, 236, .82); max-width: 46ch; }
+
+  .tour__hud {
+    margin-top: clamp(1.5rem, 4vw, 2.5rem);
+    display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem);
+  }
+  .tour__nav { display: flex; gap: .5rem; }
+  .tour__btn {
+    display: inline-grid; place-items: center;
+    width: 46px; height: 46px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--d-border);
+    color: var(--loirn-paper);
+    transition: background var(--dur-1) var(--ease-out), border-color var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+  }
+  .tour__btn:hover { background: rgba(235, 236, 236, .08); border-color: rgba(235, 236, 236, .3); transform: translateY(-1px); }
+  .tour__btn:disabled { opacity: .32; pointer-events: none; }
+  .tour__rail {
+    position: relative;
+    flex: 1;
+    height: 2px;
+    background: var(--d-border);
+    overflow: hidden;
+  }
+  .tour__rail span {
+    position: absolute; inset: 0 auto 0 0;
+    width: 12%;
+    background: var(--loirn-gold-lift);
+    transition: transform .5s var(--ease-out), width .5s var(--ease-out);
+  }
+  .tour__count { color: var(--d-text-soft); white-space: nowrap; }
+  .tour__count [data-count] { color: var(--loirn-paper); }
+
+  /* ================= DÓNDE ESTAMOS ================= */
+  .where {
+    background: var(--loirn-black);
+    color: var(--d-text);
+    padding-block: clamp(3.5rem, 9vw, 8rem);
+  }
+  .where__grid {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .where__info { display: grid; justify-items: start; gap: var(--sp-5); }
+  .where__info .u-kicker { color: var(--loirn-gold-lift); }
+  .where__info h2 { font-size: var(--fs-700); line-height: .84; color: var(--loirn-paper); }
+
+  .where__facts {
+    display: grid; gap: var(--sp-4);
+    width: 100%;
+    border-top: 1px solid var(--d-border);
+    padding-top: var(--sp-5);
+  }
+  .where__facts li { display: grid; gap: 3px; }
+  .where__facts .u-code { color: var(--loirn-gold-lift); }
+  .where__facts p { color: rgba(235, 236, 236, .86); font-size: var(--fs-300); }
+  .where__facts strong { font-family: var(--font-display); font-size: var(--fs-400); letter-spacing: .04em; }
+
+  .where__ghost { color: var(--loirn-paper); }
+
+  .where__front {
+    width: 100%;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--d-border);
+    position: relative;
+  }
+  .where__front img { width: 100%; height: auto; display: block; }
+  .where__front figcaption {
+    position: absolute; left: .8rem; bottom: .7rem;
+    color: var(--loirn-paper);
+    background: rgba(12, 12, 13, .55);
+    padding: .3em .7em;
+    border-radius: var(--r-pill);
+    backdrop-filter: blur(6px);
+  }
+
+  .where__map { position: relative; align-self: stretch; display: grid; gap: var(--sp-3); }
+  .where__mapFrame {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    border: 1px solid var(--d-border);
+    min-height: 420px;
+    height: 100%;
+    background: #141416;
+  }
+  .where__mapFrame iframe {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+  .where__pin {
+    justify-self: start;
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-size: var(--fs-200);
+    color: var(--d-text-soft);
+    transition: color var(--dur-1) var(--ease-out);
+  }
+  .where__pin:hover { color: var(--loirn-paper); }
+
+  /* ================= LIGHTBOX ================= */
+  .lb {
+    position: fixed; inset: 0; z-index: 200;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: clamp(.5rem, 2vw, 1.5rem);
+    padding: clamp(1rem, 4vw, 3rem);
+    background: rgba(8, 8, 9, .93);
+    backdrop-filter: blur(8px);
+    animation: lb-in .28s var(--ease-out);
+  }
+  @keyframes lb-in { from { opacity: 0; } to { opacity: 1; } }
+  .lb__stage { display: grid; gap: var(--sp-3); justify-items: center; min-width: 0; }
+  .lb__img {
+    max-width: 100%;
+    max-height: 78svh;
+    width: auto; height: auto;
+    border-radius: var(--r-md);
+    border: 1px solid var(--d-border);
+    animation: lb-pop .32s var(--ease-out);
+  }
+  @keyframes lb-pop { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+  .lb__cap { display: grid; gap: 2px; text-align: center; color: var(--loirn-paper); }
+  .lb__t { font-family: var(--font-display); text-transform: uppercase; font-size: var(--fs-500); }
+  .lb__d { font-size: var(--fs-200); color: var(--d-text-soft); }
+  .lb__x {
+    position: absolute; top: clamp(.75rem, 3vw, 1.5rem); right: clamp(.75rem, 3vw, 1.5rem);
+    display: inline-grid; place-items: center;
+    width: 46px; height: 46px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--d-border);
+    color: var(--loirn-paper);
+  }
+  .lb__x:hover { background: rgba(235, 236, 236, .1); }
+  .lb__arw {
+    display: inline-grid; place-items: center;
+    width: 52px; height: 52px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--d-border);
+    color: var(--loirn-paper);
+    transition: background var(--dur-1) var(--ease-out);
+  }
+  .lb__arw:hover { background: rgba(235, 236, 236, .1); }
+  .lb[hidden] { display: none; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 900px) {
+    .where__grid { grid-template-columns: 1fr; }
+    .where__map { order: -1; }
+    .where__mapFrame { min-height: 320px; }
+  }
+  @media (max-width: 720px) {
+    .frame { flex-basis: 86vw; aspect-ratio: 4 / 5; }
+    .lb { grid-template-columns: 1fr; }
+    .lb__arw { position: absolute; top: 50%; transform: translateY(-50%); }
+    .lb__arw--prev { left: .5rem; }
+    .lb__arw--next { right: .5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc-hero__bg { animation: none; transform: scale(1.04); }
+    .lc-hero__cue svg { animation: none; }
+    .frame__img,
+    .frame.is-active .frame__img { transition: none; transform: none; scale: 1; }
+    .frame__cap { opacity: 1; transform: none; }
+    .lb, .lb__img { animation: none; }
+  }
+</style>
+
+<script>
+  function initLocal() {
+    const tour = document.querySelector<HTMLElement>("[data-tour]");
+    if (!tour || (tour as any)._wired) return;
+    (tour as any)._wired = true;
+
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const vp = tour.querySelector<HTMLElement>("[data-tour-vp]")!;
+    const track = tour.querySelector<HTMLElement>("[data-tour-track]")!;
+    const frames = [...tour.querySelectorAll<HTMLElement>("[data-frame]")];
+    const rail = tour.querySelector<HTMLElement>("[data-rail]")!;
+    const countEl = tour.querySelector<HTMLElement>("[data-count]")!;
+    const prevBtn = tour.querySelector<HTMLButtonElement>("[data-prev]")!;
+    const nextBtn = tour.querySelector<HTMLButtonElement>("[data-next]")!;
+    const total = frames.length;
+    let active = 0;
+
+    const pad = (n: number) => String(n + 1).padStart(2, "0");
+
+    // ---- foco + parallax + HUD segun scroll ----
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const vpRect = vp.getBoundingClientRect();
+      const mid = vpRect.left + vpRect.width / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      frames.forEach((f, i) => {
+        const r = f.getBoundingClientRect();
+        const c = r.left + r.width / 2;
+        const dist = Math.abs(c - mid);
+        if (dist < bestDist) { bestDist = dist; best = i; }
+        if (!reduce) {
+          const rel = Math.max(-1, Math.min(1, (c - mid) / vpRect.width));
+          const img = f.querySelector<HTMLElement>(".frame__img");
+          if (img) img.style.setProperty("--px", `${(-rel * 6).toFixed(2)}%`);
+        }
+      });
+      if (best !== active) {
+        active = best;
+        frames.forEach((f, i) => f.classList.toggle("is-active", i === active));
+        countEl.textContent = pad(active);
+        rail.style.width = `${(100 / total).toFixed(3)}%`;
+        rail.style.transform = `translateX(${active * 100}%)`;
+        prevBtn.disabled = active === 0;
+        nextBtn.disabled = active === total - 1;
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    vp.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+
+    frames[0].classList.add("is-active");
+    rail.style.width = `${(100 / total).toFixed(3)}%`;
+    prevBtn.disabled = true;
+    requestAnimationFrame(update);
+
+    // ---- navegacion por frame ----
+    const goTo = (i: number) => {
+      const t = frames[Math.max(0, Math.min(total - 1, i))];
+      const left = t.offsetLeft - (vp.clientWidth - t.clientWidth) / 2;
+      vp.scrollTo({ left, behavior: reduce ? "auto" : "smooth" });
+    };
+    prevBtn.addEventListener("click", () => goTo(active - 1));
+    nextBtn.addEventListener("click", () => goTo(active + 1));
+    vp.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); goTo(active + 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); goTo(active - 1); }
+    });
+
+    // ---- rueda vertical -> horizontal (solo puntero fino) ----
+    if (matchMedia("(pointer: fine)").matches) {
+      vp.addEventListener(
+        "wheel",
+        (e) => {
+          if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+          const max = track.scrollWidth - vp.clientWidth;
+          if ((vp.scrollLeft <= 0 && e.deltaY < 0) || (vp.scrollLeft >= max && e.deltaY > 0)) return;
+          e.preventDefault();
+          vp.scrollLeft += e.deltaY;
+        },
+        { passive: false }
+      );
+    }
+
+    // ---- arrastrar para desplazar ----
+    let down = false;
+    let moved = 0;
+    let startX = 0;
+    let startLeft = 0;
+    vp.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      down = true; moved = 0;
+      startX = e.clientX; startLeft = vp.scrollLeft;
+      vp.classList.add("is-drag");
+    });
+    vp.addEventListener("pointermove", (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      moved += Math.abs(dx);
+      vp.scrollLeft = startLeft - dx;
+    });
+    const endDrag = () => { down = false; vp.classList.remove("is-drag"); };
+    vp.addEventListener("pointerup", endDrag);
+    vp.addEventListener("pointercancel", endDrag);
+    vp.addEventListener("pointerleave", endDrag);
+
+    // ---- lightbox ----
+    const lb = document.querySelector<HTMLElement>("[data-lb]")!;
+    const lbImg = lb.querySelector<HTMLImageElement>("[data-lb-img]")!;
+    const lbTitle = lb.querySelector<HTMLElement>("[data-lb-title]")!;
+    const lbNote = lb.querySelector<HTMLElement>("[data-lb-note]")!;
+    let lbIndex = 0;
+
+    const renderLb = () => {
+      const f = frames[lbIndex];
+      lbImg.src = f.dataset.full || "";
+      lbImg.alt = `Local LOIRN — ${f.dataset.title}`;
+      lbTitle.textContent = f.dataset.title || "";
+      lbNote.textContent = f.dataset.note || "";
+    };
+    const openLb = (i: number) => {
+      lbIndex = i;
+      renderLb();
+      lb.hidden = false;
+      document.documentElement.style.overflow = "hidden";
+      lb.querySelector<HTMLButtonElement>("[data-lb-close]")!.focus();
+    };
+    const closeLb = () => {
+      lb.hidden = true;
+      document.documentElement.style.overflow = "";
+      goTo(lbIndex);
+    };
+    const stepLb = (d: number) => { lbIndex = (lbIndex + d + total) % total; renderLb(); };
+
+    frames.forEach((f, i) => {
+      f.querySelector<HTMLButtonElement>("[data-open]")!.addEventListener("click", () => {
+        if (moved > 8) return;
+        openLb(i);
+      });
+    });
+    lb.querySelector<HTMLButtonElement>("[data-lb-close]")!.addEventListener("click", closeLb);
+    lb.querySelector<HTMLButtonElement>("[data-lb-prev]")!.addEventListener("click", () => stepLb(-1));
+    lb.querySelector<HTMLButtonElement>("[data-lb-next]")!.addEventListener("click", () => stepLb(1));
+    lb.addEventListener("click", (e) => { if (e.target === lb) closeLb(); });
+    document.addEventListener("keydown", (e) => {
+      if (lb.hidden) return;
+      if (e.key === "Escape") closeLb();
+      if (e.key === "ArrowRight") stepLb(1);
+      if (e.key === "ArrowLeft") stepLb(-1);
+    });
+  }
+
+  document.addEventListener("astro:page-load", initLocal);
+</script>

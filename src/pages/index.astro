@@ -1,11 +1,158 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Basicas from "../components/Basicas.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { products } from "../data/products.js";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const featured = products.filter((p) => p.featured);
+const values = [
+  ["Presencia", "La ropa comunica antes de que hables."],
+  ["Criterio", "Asesoría real: cómo combinar, cómo usarlo."],
+  ["Estilo propio", "Interpretar la tendencia, no copiarla."],
+  ["Experiencia", "Convertir la compra en inspiración."],
+];
 ---
 
 <Layout>
-	<Welcome />
+  <Hero />
+
+  <Basicas />
+
+  <div class="marquee marquee--band" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Drop 01 — AW26</span><span>Vístete con presencia</span>
+      <span>Streetwear con criterio</span><span>Drop 01 — AW26</span>
+    </div>
+    <div class="marquee__track">
+      <span>Drop 01 — AW26</span><span>Vístete con presencia</span>
+      <span>Streetwear con criterio</span><span>Drop 01 — AW26</span>
+    </div>
+  </div>
+
+  <section id="drop" class="section wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="u-kicker">01 — Selección</p>
+        <h2>El drop</h2>
+      </div>
+      <a class="btn btn--ghost" href="/catalogo">Ver todo</a>
+    </div>
+
+    <div class="pgrid">
+      {featured.map((p, i) => (
+        <div data-reveal style={`transition-delay:${(i % 3) * 70}ms`}>
+          <ProductCard product={p} eager={i < 2} />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section manifesto">
+    <div class="wrap manifesto__grid">
+      <div data-reveal>
+        <p class="u-kicker">ADN de marca</p>
+        <p class="manifesto__statement">
+          No es solo ropa.<br />Es <span>presencia</span>.
+        </p>
+        <p class="u-lede">
+          LOIRN combina streetwear, asesoría de estilo y una experiencia de compra
+          distinta. No nos limitamos a vender prendas: enseñamos a construir una
+          imagen con actitud, seguridad y coherencia visual.
+        </p>
+        <a class="btn btn--light" href="/local">Conocé el local</a>
+      </div>
+      <ul class="manifesto__values" data-reveal>
+        {values.map(([t, d]) => (
+          <li>
+            <h3>{t}</h3>
+            <p>{d}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
 </Layout>
+
+<style>
+  .marquee--band {
+    border-color: var(--border);
+    color: var(--text);
+    background: var(--bg-raised);
+  }
+
+  .pgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+
+  .manifesto { background: var(--d-bg); color: var(--d-text); }
+  .manifesto__grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .manifesto__grid > div { display: grid; gap: var(--sp-5); justify-items: start; }
+  .manifesto__statement {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: var(--tracking-display);
+    font-size: var(--fs-700);
+  }
+  /* "presencia" en plateado: gradiente cromado + brillo lento */
+  .manifesto__statement span {
+    background: linear-gradient(
+      100deg,
+      #8d9195 0%,
+      #e8eaec 16%,
+      #ffffff 29%,
+      #b4b8bc 43%,
+      #71757a 53%,
+      #cfd2d5 66%,
+      #ffffff 80%,
+      #979b9f 100%
+    );
+    background-size: 220% 100%;
+    background-position: 12% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.22))
+      drop-shadow(0 8px 30px rgba(201, 205, 210, 0.24));
+    animation: presencia-sheen 7s var(--ease-in-out) infinite;
+  }
+  @keyframes presencia-sheen {
+    0%, 100% { background-position: 12% 50%; }
+    50% { background-position: 92% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .manifesto__statement span { animation: none; }
+  }
+  .manifesto .u-lede { color: var(--d-text-soft); }
+
+  .manifesto__values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--d-border);
+    border: 1px solid var(--d-border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .manifesto__values li { background: var(--d-bg); padding: clamp(1.25rem, 3vw, 2rem); display: grid; gap: var(--sp-2); }
+  .manifesto__values h3 { font-size: var(--fs-500); }
+  .manifesto__values p { color: var(--d-text-soft); font-size: var(--fs-200); }
+
+  @media (max-width: 860px) {
+    .manifesto__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 460px) {
+    .manifesto__values { grid-template-columns: 1fr; }
+  }
+</style>

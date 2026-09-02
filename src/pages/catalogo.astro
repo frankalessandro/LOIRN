@@ -1,0 +1,97 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { products } from "../data/products.js";
+
+const collections = ["Todo", ...new Set(products.map((p) => p.collection))];
+---
+
+<Layout title="Catálogo — LOIRN" nav="solid">
+  <header class="cat-head wrap">
+    <p class="u-kicker" data-reveal>Drop 01 · AW26</p>
+    <h1 data-reveal>Catálogo</h1>
+    <p class="u-lede" data-reveal>
+      {products.length} prendas. Sistema completo: base, capas y remates para
+      construir presencia.
+    </p>
+
+    <div class="cat-filters" role="tablist" aria-label="Filtrar por colección">
+      {collections.map((c, i) => (
+        <button
+          class:list={["chip", { "is-active": i === 0 }]}
+          role="tab"
+          aria-selected={i === 0 ? "true" : "false"}
+          data-filter={c}
+        >
+          {c}
+        </button>
+      ))}
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:0">
+    <div class="pgrid" data-catalog>
+      {products.map((p, i) => (
+        <div data-reveal data-collection={p.collection} style={`transition-delay:${(i % 3) * 60}ms`}>
+          <ProductCard product={p} eager={i < 3} />
+        </div>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .cat-head {
+    padding-top: calc(var(--header-h) + clamp(2rem, 6vw, 4.5rem));
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    gap: var(--sp-3);
+  }
+  .cat-head h1 { font-size: var(--fs-800); line-height: 0.85; }
+  .cat-head .u-lede { margin-top: var(--sp-2); }
+
+  .cat-filters { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-5); }
+  .chip {
+    padding: 0.6em 1.15em;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-strong);
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: var(--fs-200);
+    color: var(--text-soft);
+    transition: all var(--dur-1) var(--ease-out);
+  }
+  .chip:hover { color: var(--text); border-color: var(--text); }
+  .chip.is-active { background: var(--loirn-ink); color: var(--loirn-paper); border-color: var(--loirn-ink); }
+
+  .pgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+  [data-collection][hidden] { display: none; }
+</style>
+
+<script>
+  function wireFilters() {
+    const wrap = document.querySelector(".cat-filters");
+    if (!wrap || (wrap as any)._wired) return;
+    (wrap as any)._wired = true;
+
+    const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
+    const items = document.querySelectorAll<HTMLElement>("[data-collection]");
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        chips.forEach((c) => { c.classList.remove("is-active"); c.setAttribute("aria-selected", "false"); });
+        chip.classList.add("is-active");
+        chip.setAttribute("aria-selected", "true");
+        const f = chip.dataset.filter;
+        items.forEach((it) => {
+          it.hidden = !(f === "Todo" || it.dataset.collection === f);
+        });
+      });
+    });
+  }
+  document.addEventListener("astro:page-load", wireFilters);
+</script>
