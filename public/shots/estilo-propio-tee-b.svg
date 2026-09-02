@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1400" width="1100" height="1400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c0c0d"/>
+      <stop offset="1" stop-color="#0c0c0d" stop-opacity="0.82"/>
+    </linearGradient>
+    <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="t"/>
+      <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0"/></filter>
+  </defs>
+  <rect width="1100" height="1400" fill="url(#g)"/>
+  <g stroke="#ebecec" stroke-width="2" fill="none" opacity="0.22"><ellipse cx="550.0" cy="784.0000000000001" rx="484.0" ry="168.0"/><ellipse cx="550.0" cy="784.0000000000001" rx="330.0" ry="112.0"/><circle cx="550.0" cy="784.0000000000001" r="6" fill="#ebecec" stroke="none"/></g>
+  <text x="1030" y="1330" text-anchor="end" font-family="Oswald, Arial Narrow, sans-serif"
+        font-weight="700" font-size="360" fill="#ebecec" opacity="0.10">05</text>
+  <text x="80" y="240" font-family="Oswald, Arial Narrow, sans-serif" font-weight="600"
+        font-size="112" letter-spacing="-2" fill="#ebecec"><tspan x="80" dy="0">ESTILO</tspan><tspan x="80" dy="1.02em">PROPIO</tspan><tspan x="80" dy="1.02em">BOXY TEE</tspan></text>
+  <text x="80" y="1328" font-family="Space Mono, monospace" font-size="30"
+        letter-spacing="6" fill="#ebecec" opacity="0.7">LOIRN · DETALLE</text>
+  <circle cx="1004" cy="120" r="30" fill="none" stroke="#4d535f" stroke-width="3"/>
+  <rect width="1100" height="1400" filter="url(#n)"/>
+</svg>

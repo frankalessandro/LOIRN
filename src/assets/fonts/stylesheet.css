@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'GAEROS';
+    src: url('GAEROSRegular.woff2') format('woff2'),
+        url('GAEROSRegular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Salmond';
+    src: url('Salmond-Bold.woff2') format('woff2'),
+        url('Salmond-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Salmond';
+    src: url('Salmond-Regular.woff2') format('woff2'),
+        url('Salmond-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

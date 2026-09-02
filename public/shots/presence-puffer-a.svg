@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1400" width="1100" height="1400">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ebecec"/>
+      <stop offset="1" stop-color="#ebecec" stop-opacity="0.82"/>
+    </linearGradient>
+    <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="t"/>
+      <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0"/></filter>
+  </defs>
+  <rect width="1100" height="1400" fill="url(#g)"/>
+  <g stroke="#1c1c1c" stroke-width="2" fill="none" opacity="0.22"><line x1="0" y1="0" x2="0" y2="1400"/><line x1="92" y1="0" x2="92" y2="1400"/><line x1="184" y1="0" x2="184" y2="1400"/><line x1="276" y1="0" x2="276" y2="1400"/><line x1="368" y1="0" x2="368" y2="1400"/><line x1="460" y1="0" x2="460" y2="1400"/><line x1="552" y1="0" x2="552" y2="1400"/><line x1="644" y1="0" x2="644" y2="1400"/><line x1="736" y1="0" x2="736" y2="1400"/><line x1="828" y1="0" x2="828" y2="1400"/><line x1="920" y1="0" x2="920" y2="1400"/><line x1="1012" y1="0" x2="1012" y2="1400"/><line x1="0" y1="0" x2="1100" y2="0"/><line x1="0" y1="92" x2="1100" y2="92"/><line x1="0" y1="184" x2="1100" y2="184"/><line x1="0" y1="276" x2="1100" y2="276"/><line x1="0" y1="368" x2="1100" y2="368"/><line x1="0" y1="460" x2="1100" y2="460"/><line x1="0" y1="552" x2="1100" y2="552"/><line x1="0" y1="644" x2="1100" y2="644"/><line x1="0" y1="736" x2="1100" y2="736"/><line x1="0" y1="828" x2="1100" y2="828"/><line x1="0" y1="920" x2="1100" y2="920"/><line x1="0" y1="1012" x2="1100" y2="1012"/><line x1="0" y1="1104" x2="1100" y2="1104"/><line x1="0" y1="1196" x2="1100" y2="1196"/><line x1="0" y1="1288" x2="1100" y2="1288"/><line x1="0" y1="1380" x2="1100" y2="1380"/></g>
+  <text x="1030" y="1330" text-anchor="end" font-family="Oswald, Arial Narrow, sans-serif"
+        font-weight="700" font-size="360" fill="#1c1c1c" opacity="0.10">01</text>
+  <text x="80" y="240" font-family="Oswald, Arial Narrow, sans-serif" font-weight="600"
+        font-size="112" letter-spacing="-2" fill="#1c1c1c"><tspan x="80" dy="0">PRESENCE</tspan><tspan x="80" dy="1.02em">HOODED</tspan><tspan x="80" dy="1.02em">PUFFER</tspan></text>
+  <text x="80" y="1328" font-family="Space Mono, monospace" font-size="30"
+        letter-spacing="6" fill="#1c1c1c" opacity="0.7">LOIRN · FRONT</text>
+  <circle cx="1004" cy="120" r="30" fill="none" stroke="#7f8080" stroke-width="3"/>
+  <rect width="1100" height="1400" filter="url(#n)"/>
+</svg>
