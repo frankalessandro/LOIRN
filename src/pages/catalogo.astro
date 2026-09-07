@@ -1,41 +1,184 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ProductCard from "../components/ProductCard.astro";
-import { products } from "../data/products.js";
+import { getProducts, getFacets, money } from "../lib/shop";
 
-const collections = ["Todo", ...new Set(products.map((p) => p.collection))];
+const products = await getProducts();
+const facets = await getFacets();
+
+/** Redondeo del tope a la decena de mil de arriba para que el slider respire. */
+const STEP = 10000;
+const floorPrice = Math.floor(facets.minPrice / STEP) * STEP;
+const ceilPrice = Math.ceil(facets.maxPrice / STEP) * STEP;
 ---
 
 <Layout title="Catálogo — LOIRN" nav="solid">
   <header class="cat-head wrap">
-    <p class="u-kicker" data-reveal>Drop 01 · AW26</p>
+    <p class="u-kicker" data-reveal>{facets.drops[0] ?? "Catálogo"}</p>
     <h1 data-reveal>Catálogo</h1>
     <p class="u-lede" data-reveal>
       {products.length} prendas. Sistema completo: base, capas y remates para
       construir presencia.
     </p>
-
-    <div class="cat-filters" role="tablist" aria-label="Filtrar por colección">
-      {collections.map((c, i) => (
-        <button
-          class:list={["chip", { "is-active": i === 0 }]}
-          role="tab"
-          aria-selected={i === 0 ? "true" : "false"}
-          data-filter={c}
-        >
-          {c}
-        </button>
-      ))}
-    </div>
   </header>
 
   <section class="section wrap" style="padding-top:0">
-    <div class="pgrid" data-catalog>
-      {products.map((p, i) => (
-        <div data-reveal data-collection={p.collection} style={`transition-delay:${(i % 3) * 60}ms`}>
-          <ProductCard product={p} eager={i < 3} />
+    <div class="cat-layout">
+      <!-- ---------------- FILTROS ---------------- -->
+      <aside class="filters" data-filters>
+        <div class="filters__bar">
+          <button
+            type="button"
+            class="glass-pill filters__toggle"
+            data-filters-toggle
+            aria-expanded="false"
+            aria-controls="filtros"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M7 12h10M10 18h4"></path>
+            </svg>
+            Filtros
+            <span class="filters__badge" data-active-count hidden>0</span>
+          </button>
+
+          <label class="filters__sort">
+            <span class="u-kicker">Orden</span>
+            <select data-sort>
+              <option value="destacados">Destacados</option>
+              <option value="precio-asc">Precio · menor</option>
+              <option value="precio-desc">Precio · mayor</option>
+              <option value="descuento">Mayor descuento</option>
+              <option value="nombre">Nombre A–Z</option>
+            </select>
+          </label>
         </div>
-      ))}
+
+        <form class="filters__panel" id="filtros" data-filters-panel>
+          <fieldset class="facet">
+            <legend class="u-kicker">Colección</legend>
+            <div class="facet__chips">
+              {facets.collections.map((c) => (
+                <label class="chip">
+                  <input type="checkbox" name="col" value={c} />
+                  <span>{c}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset class="facet">
+            <legend class="u-kicker">Talla</legend>
+            <div class="facet__chips facet__chips--sizes">
+              {facets.sizes.map((sz) => (
+                <label class="chip chip--size">
+                  <input type="checkbox" name="talla" value={sz} />
+                  <span>{sz}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset class="facet facet--price">
+            <legend class="u-kicker">Precio</legend>
+            <p class="facet__readout u-price" data-price-readout>
+              {money(floorPrice)} — {money(ceilPrice)}
+            </p>
+            <div class="range" data-range>
+              <div class="range__track"><span class="range__fill" data-range-fill></span></div>
+              <input
+                type="range" name="min" data-range-min
+                min={floorPrice} max={ceilPrice} step={STEP} value={floorPrice}
+                aria-label="Precio mínimo"
+              />
+              <input
+                type="range" name="max" data-range-max
+                min={floorPrice} max={ceilPrice} step={STEP} value={ceilPrice}
+                aria-label="Precio máximo"
+              />
+            </div>
+          </fieldset>
+
+          {facets.colorways.length > 1 && (
+            <fieldset class="facet">
+              <legend class="u-kicker">Colorway</legend>
+              <div class="facet__chips">
+                {facets.colorways.map((c) => (
+                  <label class="chip">
+                    <input type="checkbox" name="color" value={c} />
+                    <span>{c}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          {facets.drops.length > 1 && (
+            <fieldset class="facet">
+              <legend class="u-kicker">Drop</legend>
+              <div class="facet__chips">
+                {facets.drops.map((d) => (
+                  <label class="chip">
+                    <input type="checkbox" name="drop" value={d} />
+                    <span>{d}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          <fieldset class="facet">
+            <legend class="u-kicker">Disponibilidad</legend>
+            <div class="facet__chips">
+              <label class="chip">
+                <input type="checkbox" name="rebaja" value="1" />
+                <span>En rebaja</span>
+              </label>
+              <label class="chip">
+                <input type="checkbox" name="stock" value="1" />
+                <span>Con stock</span>
+              </label>
+            </div>
+          </fieldset>
+        </form>
+      </aside>
+
+      <!-- ---------------- RESULTADOS ---------------- -->
+      <div class="cat-results">
+        <div class="cat-status">
+          <p class="u-code" data-count>{products.length} prendas</p>
+          <button type="button" class="cat-clear" data-clear hidden>Limpiar filtros</button>
+        </div>
+
+        <div class="pgrid" data-catalog>
+          {products.map((p, i) => (
+            <div
+              data-reveal
+              data-item
+              data-index={i}
+              data-name={p.name}
+              data-collection={p.collection}
+              data-colorway={p.colorway}
+              data-drop={p.drop}
+              data-price={p.price}
+              data-discount={p.compareAt ? Math.round((1 - p.price / p.compareAt) * 100) : 0}
+              data-featured={p.featured ? "1" : "0"}
+              data-stock={p.availableForSale ? "1" : "0"}
+              data-sizes={p.variants
+                .filter((v) => v.availableForSale)
+                .map((v) => v.size)
+                .join("|")}
+              style={`transition-delay:${(i % 3) * 60}ms`}
+            >
+              <ProductCard product={p} eager={i < 3} />
+            </div>
+          ))}
+        </div>
+
+        <p class="cat-none" data-none hidden>
+          Ninguna prenda coincide con esos filtros.
+          <button type="button" class="cat-clear" data-clear>Limpiar</button>
+        </p>
+      </div>
     </div>
   </section>
 </Layout>
@@ -50,9 +193,58 @@ const collections = ["Todo", ...new Set(products.map((p) => p.collection))];
   .cat-head h1 { font-size: var(--fs-800); line-height: 0.85; }
   .cat-head .u-lede { margin-top: var(--sp-2); }
 
-  .cat-filters { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-5); }
-  .chip {
-    padding: 0.6em 1.15em;
+  .cat-layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+
+  /* ---------------- filtros ---------------- */
+  .filters { position: sticky; top: calc(var(--header-h) + var(--sp-4)); }
+  .filters__bar { display: grid; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+  .filters__toggle { display: none; justify-content: center; position: relative; }
+  .filters__badge {
+    display: grid; place-items: center;
+    min-width: 18px; height: 18px; padding-inline: 5px;
+    border-radius: var(--r-pill);
+    background: var(--loirn-ink); color: var(--loirn-paper);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0;
+  }
+  .filters__badge[hidden] { display: none; }
+
+  .filters__sort { display: grid; gap: var(--sp-2); }
+  .filters__sort .u-kicker { color: var(--text-mute); }
+  .filters__sort select {
+    width: 100%;
+    padding: 0.7em 2.2em 0.7em 0.9em;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    background: transparent;
+    font-family: var(--font-label);
+    font-size: var(--fs-200);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 1.05em top 55%, right 0.75em top 55%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+
+  .filters__panel { display: grid; gap: var(--sp-5); }
+
+  .facet { border: 0; padding: 0; margin: 0; display: grid; gap: var(--sp-3); }
+  .facet legend { color: var(--text-mute); padding: 0; margin-bottom: var(--sp-1); }
+  .facet__chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .facet__chips--sizes { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); }
+
+  .chip { cursor: pointer; }
+  .chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .chip span {
+    display: block;
+    padding: 0.55em 1em;
     border-radius: var(--r-pill);
     border: 1px solid var(--border-strong);
     font-family: var(--font-label);
@@ -62,36 +254,317 @@ const collections = ["Todo", ...new Set(products.map((p) => p.collection))];
     color: var(--text-soft);
     transition: all var(--dur-1) var(--ease-out);
   }
-  .chip:hover { color: var(--text); border-color: var(--text); }
-  .chip.is-active { background: var(--loirn-ink); color: var(--loirn-paper); border-color: var(--loirn-ink); }
+  .chip--size span { text-align: center; padding-inline: 0.4em; }
+  .chip:hover span { color: var(--text); border-color: var(--text); }
+  .chip input:checked + span {
+    background: var(--loirn-ink);
+    color: var(--loirn-paper);
+    border-color: var(--loirn-ink);
+  }
+  .chip input:focus-visible + span { outline: 2px solid var(--loirn-ink); outline-offset: 3px; }
+
+  /* ---- doble slider de precio ---- */
+  .facet--price { gap: var(--sp-2); }
+  .facet__readout { font-size: var(--fs-400); }
+  .range { position: relative; height: 28px; display: grid; align-items: center; }
+  .range__track {
+    position: absolute; inset-inline: 0; height: 3px;
+    background: rgba(28, 28, 28, 0.14);
+    border-radius: var(--r-pill);
+  }
+  .range__fill {
+    position: absolute; height: 100%;
+    background: var(--loirn-ink);
+    border-radius: var(--r-pill);
+  }
+  /* Dos inputs superpuestos: la pista es la del div, los inputs solo aportan
+     sus pulgares (por eso el track propio va transparente y sin eventos). */
+  .range input {
+    position: absolute;
+    inset-inline: 0;
+    width: 100%;
+    margin: 0;
+    background: none;
+    appearance: none;
+    pointer-events: none;
+  }
+  .range input::-webkit-slider-runnable-track { height: 3px; background: transparent; }
+  .range input::-moz-range-track { height: 3px; background: transparent; }
+  .range input::-webkit-slider-thumb {
+    appearance: none;
+    pointer-events: auto;
+    width: 16px; height: 16px;
+    margin-top: -7px;
+    border-radius: 50%;
+    background: var(--loirn-ink);
+    border: 2px solid var(--bg);
+    box-shadow: var(--sh-sm);
+    cursor: grab;
+  }
+  .range input::-moz-range-thumb {
+    pointer-events: auto;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--loirn-ink);
+    border: 2px solid var(--bg);
+    box-shadow: var(--sh-sm);
+    cursor: grab;
+  }
+
+  /* ---------------- resultados ---------------- */
+  .cat-status {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--sp-3);
+    padding-bottom: var(--sp-4);
+    margin-bottom: var(--sp-5);
+    border-bottom: 1px solid var(--border);
+  }
+  .cat-status .u-code { color: var(--text-mute); }
+  .cat-clear {
+    font-family: var(--font-label); text-transform: uppercase;
+    letter-spacing: 0.12em; font-size: var(--fs-100); color: var(--text-soft);
+    text-decoration: underline; text-underline-offset: 4px;
+  }
+  .cat-clear:hover { color: var(--text); }
+  .cat-clear[hidden] { display: none; }
 
   .pgrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
     gap: clamp(1.25rem, 3vw, 2.25rem);
   }
-  [data-collection][hidden] { display: none; }
+  [data-item][hidden] { display: none; }
+
+  .cat-none {
+    padding-block: var(--sp-8);
+    text-align: center;
+    color: var(--text-soft);
+    display: grid; gap: var(--sp-3); justify-items: center;
+  }
+  .cat-none[hidden] { display: none; }
+
+  @media (max-width: 900px) {
+    .cat-layout { grid-template-columns: 1fr; }
+    .filters { position: static; }
+    .filters__bar { grid-template-columns: 1fr 1fr; align-items: end; }
+    .filters__toggle { display: inline-flex; }
+    .filters__panel {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--sp-5);
+      padding: var(--sp-5);
+      margin-bottom: var(--sp-5);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+    }
+    .filters__panel[hidden] { display: none; }
+  }
 </style>
 
 <script>
-  function wireFilters() {
-    const wrap = document.querySelector(".cat-filters");
-    if (!wrap || (wrap as any)._wired) return;
-    (wrap as any)._wired = true;
+  /**
+   * Filtrado y orden del catálogo, en cliente y sin recargar.
+   *
+   * El estado vive en la URL (?col=…&talla=M,L&min=…&orden=…) para que un
+   * filtro se pueda compartir o recargar. Todas las prendas se renderizan en
+   * build y aquí solo se ocultan / reordenan: el catálogo de LOIRN cabe de
+   * sobra en una página y así se conservan el reveal y los view transitions.
+   */
+  type Item = HTMLElement;
 
-    const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
-    const items = document.querySelectorAll<HTMLElement>("[data-collection]");
-    chips.forEach((chip) => {
-      chip.addEventListener("click", () => {
-        chips.forEach((c) => { c.classList.remove("is-active"); c.setAttribute("aria-selected", "false"); });
-        chip.classList.add("is-active");
-        chip.setAttribute("aria-selected", "true");
-        const f = chip.dataset.filter;
-        items.forEach((it) => {
-          it.hidden = !(f === "Todo" || it.dataset.collection === f);
+  function initCatalog() {
+    const panel = document.querySelector<HTMLFormElement>("[data-filters-panel]");
+    if (!panel || (panel as any)._wired) return;
+    (panel as any)._wired = true;
+
+    const grid = document.querySelector<HTMLElement>("[data-catalog]");
+    const items = Array.from(document.querySelectorAll<Item>("[data-item]"));
+    const sort = document.querySelector<HTMLSelectElement>("[data-sort]");
+    const count = document.querySelector<HTMLElement>("[data-count]");
+    const none = document.querySelector<HTMLElement>("[data-none]");
+    const badge = document.querySelector<HTMLElement>("[data-active-count]");
+    const readout = document.querySelector<HTMLElement>("[data-price-readout]");
+    const rangeMin = document.querySelector<HTMLInputElement>("[data-range-min]");
+    const rangeMax = document.querySelector<HTMLInputElement>("[data-range-max]");
+    const fill = document.querySelector<HTMLElement>("[data-range-fill]");
+    const toggle = document.querySelector<HTMLButtonElement>("[data-filters-toggle]");
+    if (!grid || !rangeMin || !rangeMax) return;
+
+    const FLOOR = Number(rangeMin.min);
+    const CEIL = Number(rangeMin.max);
+
+    const cop = new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0,
+    });
+
+    const checked = (name: string) =>
+      Array.from(panel.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)).map(
+        (i) => i.value
+      );
+
+    /** Los dos pulgares no se cruzan. */
+    function clampRange(moved: "min" | "max") {
+      let lo = Number(rangeMin!.value);
+      let hi = Number(rangeMax!.value);
+      if (lo > hi) {
+        if (moved === "min") rangeMax!.value = String(lo);
+        else rangeMin!.value = String(hi);
+        lo = Number(rangeMin!.value);
+        hi = Number(rangeMax!.value);
+      }
+      const span = CEIL - FLOOR || 1;
+      if (fill) {
+        fill.style.left = `${((lo - FLOOR) / span) * 100}%`;
+        fill.style.width = `${((hi - lo) / span) * 100}%`;
+      }
+      if (readout) readout.textContent = `${cop.format(lo)} — ${cop.format(hi)}`;
+    }
+
+    function apply(pushUrl = true) {
+      const cols = checked("col");
+      const sizes = checked("talla");
+      const colors = checked("color");
+      const drops = checked("drop");
+      const onSale = checked("rebaja").length > 0;
+      const inStock = checked("stock").length > 0;
+      const lo = Number(rangeMin!.value);
+      const hi = Number(rangeMax!.value);
+
+      let visible = 0;
+      for (const el of items) {
+        const price = Number(el.dataset.price);
+        const elSizes = (el.dataset.sizes || "").split("|").filter(Boolean);
+        const ok =
+          (!cols.length || cols.includes(el.dataset.collection || "")) &&
+          (!sizes.length || sizes.some((s) => elSizes.includes(s))) &&
+          (!colors.length || colors.includes(el.dataset.colorway || "")) &&
+          (!drops.length || drops.includes(el.dataset.drop || "")) &&
+          (!onSale || Number(el.dataset.discount) > 0) &&
+          (!inStock || el.dataset.stock === "1") &&
+          price >= lo &&
+          price <= hi;
+
+        el.hidden = !ok;
+        if (ok) visible++;
+      }
+
+      // Orden: se reordena con `order`, sin tocar el DOM (no rompe el reveal).
+      const mode = sort?.value || "destacados";
+      const ranked = [...items].sort((a, b) => {
+        const pa = Number(a.dataset.price);
+        const pb = Number(b.dataset.price);
+        switch (mode) {
+          case "precio-asc": return pa - pb;
+          case "precio-desc": return pb - pa;
+          case "descuento": return Number(b.dataset.discount) - Number(a.dataset.discount);
+          case "nombre":
+            return (a.dataset.name || "").localeCompare(b.dataset.name || "", "es");
+          default:
+            return (
+              Number(b.dataset.featured) - Number(a.dataset.featured) ||
+              Number(a.dataset.index) - Number(b.dataset.index)
+            );
+        }
+      });
+      ranked.forEach((el, i) => { el.style.order = String(i); });
+
+      if (count) count.textContent = `${visible} ${visible === 1 ? "prenda" : "prendas"}`;
+      if (none) none.hidden = visible > 0;
+
+      const active =
+        cols.length + sizes.length + colors.length + drops.length +
+        (onSale ? 1 : 0) + (inStock ? 1 : 0) +
+        (lo > FLOOR || hi < CEIL ? 1 : 0);
+      if (badge) { badge.hidden = active === 0; badge.textContent = String(active); }
+      document.querySelectorAll<HTMLElement>("[data-clear]").forEach((b) => {
+        if (!b.closest("[data-none]")) b.hidden = active === 0 && mode === "destacados";
+      });
+
+      if (pushUrl) writeUrl(cols, sizes, colors, drops, onSale, inStock, lo, hi, mode);
+    }
+
+    function writeUrl(
+      cols: string[], sizes: string[], colors: string[], drops: string[],
+      onSale: boolean, inStock: boolean, lo: number, hi: number, mode: string
+    ) {
+      const q = new URLSearchParams();
+      if (cols.length) q.set("col", cols.join(","));
+      if (sizes.length) q.set("talla", sizes.join(","));
+      if (colors.length) q.set("color", colors.join(","));
+      if (drops.length) q.set("drop", drops.join(","));
+      if (onSale) q.set("rebaja", "1");
+      if (inStock) q.set("stock", "1");
+      if (lo > FLOOR) q.set("min", String(lo));
+      if (hi < CEIL) q.set("max", String(hi));
+      if (mode !== "destacados") q.set("orden", mode);
+      const url = q.toString() ? `${location.pathname}?${q}` : location.pathname;
+      history.replaceState(history.state, "", url);
+    }
+
+    function readUrl() {
+      const q = new URLSearchParams(location.search);
+      const set = (name: string, values: string[]) => {
+        panel!.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`).forEach((i) => {
+          i.checked = values.includes(i.value);
         });
+      };
+      set("col", (q.get("col") || "").split(",").filter(Boolean));
+      set("talla", (q.get("talla") || "").split(",").filter(Boolean));
+      set("color", (q.get("color") || "").split(",").filter(Boolean));
+      set("drop", (q.get("drop") || "").split(",").filter(Boolean));
+      set("rebaja", q.get("rebaja") ? ["1"] : []);
+      set("stock", q.get("stock") ? ["1"] : []);
+      const lo = Number(q.get("min"));
+      const hi = Number(q.get("max"));
+      if (lo >= FLOOR && lo <= CEIL) rangeMin!.value = String(lo);
+      if (hi >= FLOOR && hi <= CEIL) rangeMax!.value = String(hi);
+      if (sort && q.get("orden")) sort.value = q.get("orden")!;
+      clampRange("min");
+    }
+
+    panel.addEventListener("change", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.type === "range") clampRange(t.dataset.rangeMin !== undefined ? "min" : "max");
+      apply();
+    });
+    panel.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.type !== "range") return;
+      clampRange(t.dataset.rangeMin !== undefined ? "min" : "max");
+      apply();
+    });
+    panel.addEventListener("submit", (e) => e.preventDefault());
+    sort?.addEventListener("change", () => apply());
+
+    document.querySelectorAll<HTMLButtonElement>("[data-clear]").forEach((b) => {
+      b.addEventListener("click", () => {
+        panel.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((i) => {
+          i.checked = false;
+        });
+        rangeMin.value = String(FLOOR);
+        rangeMax.value = String(CEIL);
+        if (sort) sort.value = "destacados";
+        clampRange("min");
+        apply();
       });
     });
+
+    // En móvil el panel arranca plegado.
+    const collapsed = matchMedia("(max-width: 900px)").matches;
+    panel.hidden = collapsed;
+    toggle?.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      toggle.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+    matchMedia("(max-width: 900px)").addEventListener("change", (e) => {
+      panel.hidden = e.matches;
+      toggle?.setAttribute("aria-expanded", String(!e.matches));
+    });
+
+    readUrl();
+    apply(false);
   }
-  document.addEventListener("astro:page-load", wireFilters);
+
+  document.addEventListener("astro:page-load", initCatalog);
 </script>

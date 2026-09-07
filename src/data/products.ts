@@ -1,14 +1,33 @@
 /**
- * Catálogo demo LOIRN.
- * Las imágenes son placeholders editoriales monocromos generados en
- * /public/shots (ver scripts). Respetan la dirección de arte del manual:
- * fondos limpios, contraste marcado, B/N. Sustituir por fotografía real.
+ * Catálogo crudo de LOIRN — única fuente de verdad mientras no exista la
+ * tienda en Shopify. Solo datos: los campos derivados (variantes, imágenes,
+ * etiqueta de descuento, facetas) los calcula `src/lib/shop/adapters/local.ts`.
+ *
+ * Cuando la tienda de Shopify esté lista, este archivo deja de leerse: el
+ * adaptador de Shopify devuelve exactamente la misma forma. Ver README.
+ *
+ * Las imágenes son placeholders editoriales monocromos en /public/shots.
+ * Sustituir por fotografía real.
  */
 
-const shot = (slug, angle) => `/shots/${slug}-${angle}.svg`;
+export interface RawProduct {
+  slug: string;
+  name: string;
+  collection: string;
+  price: number;
+  compareAt: number | null;
+  sizes: string[];
+  /** Tallas sin stock. Vacío = todo disponible. */
+  soldOut?: string[];
+  colorway: string;
+  sku: string;
+  drop: string;
+  featured: boolean;
+  description: string;
+  details: string[];
+}
 
-/** @typedef {typeof products[number]} Product */
-export const products = [
+export const rawProducts: RawProduct[] = [
   {
     slug: "presence-puffer",
     name: "Presence Hooded Puffer",
@@ -162,18 +181,4 @@ export const products = [
       "Gorro de doblez ajustado con etiqueta tejida frontal. Remate limpio para cualquier look del sistema.",
     details: ["100% acrílico suave", "Tejido fino · doblez estructurado", "Etiqueta LOIRN tejida"],
   },
-].map((p, i) => ({
-  ...p,
-  discountLabel:
-    p.compareAt ? `-${Math.round((1 - p.price / p.compareAt) * 100)}%` : null,
-  images: [shot(p.slug, "a"), shot(p.slug, "b"), shot(p.slug, "c")],
-}));
-
-export const money = (n) =>
-  new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    maximumFractionDigits: 0,
-  }).format(n);
-
-export const getProduct = (slug) => products.find((p) => p.slug === slug);
+];

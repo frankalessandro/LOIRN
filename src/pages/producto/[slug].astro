@@ -1,14 +1,31 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import ProductCard from "../../components/ProductCard.astro";
-import { products, money } from "../../data/products.js";
+import { getProducts, money } from "../../lib/shop";
+import type { Product, ProductVariant } from "../../lib/shop";
 
-export function getStaticPaths() {
-  return products.map((p) => ({ params: { slug: p.slug }, props: { product: p } }));
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((p) => ({
+    params: { slug: p.slug },
+    props: { product: p, related: products.filter((x) => x.slug !== p.slug).slice(0, 3) },
+  }));
 }
-const { product } = Astro.props;
-const related = products.filter((p) => p.slug !== product.slug).slice(0, 3);
-const oneSize = product.sizes.length === 1;
+const { product, related } = Astro.props as { product: Product; related: Product[] };
+const oneSize = product.variants.length === 1;
+const soldOut = !product.availableForSale;
+
+/** Línea de carrito serializada por variante — la lee el handler global. */
+const line = (v: ProductVariant) =>
+  JSON.stringify({
+    variantId: v.id,
+    productSlug: product.slug,
+    name: product.name,
+    size: v.size,
+    price: v.price,
+    compareAt: v.compareAtPrice,
+    image: product.images[0],
+  });
 
 const accordions = [
   { t: "Detalles del producto", items: product.details },
@@ -95,19 +112,31 @@ const accordions = [
               {!oneSize && <button type="button" class="pdp__guide" data-open-guide>Guía</button>}
             </div>
             <div class="pdp__size-grid" data-sizes>
-              {product.sizes.map((s, i) => (
+              {product.variants.map((v, i) => (
                 <button
                   type="button" role="radio"
                   aria-checked={oneSize && i === 0 ? "true" : "false"}
                   class:list={["pdp__size", { "is-on": oneSize && i === 0 }]}
-                  data-size={s}
-                >{s}</button>
+                  data-size={v.size}
+                  data-line={line(v)}
+                  disabled={!v.availableForSale}
+                  aria-label={v.availableForSale ? `Talla ${v.size}` : `Talla ${v.size} agotada`}
+                >{v.size}</button>
               ))}
             </div>
           </div>
 
-          <button type="button" class="btn btn--lg btn--block pdp__add" data-add disabled={!oneSize}>
-            <span data-add-label>{oneSize ? "Agregar al carrito" : "Elige una talla"}</span>
+          <button
+            type="button"
+            class="btn btn--lg btn--block pdp__add"
+            data-add
+            data-add-to-cart
+            data-line={oneSize && product.variants[0] ? line(product.variants[0]) : undefined}
+            disabled={soldOut || !oneSize}
+          >
+            <span data-add-label>
+              {soldOut ? "Agotado" : oneSize ? "Agregar al carrito" : "Elige una talla"}
+            </span>
           </button>
 
           <div class="pdp__mini">
@@ -143,7 +172,14 @@ const accordions = [
         <p class="pdp__bar-name">{product.name}</p>
         <p class="u-price pdp__bar-price">{money(product.price)}</p>
       </div>
-      <button type="button" class="btn" data-add-mirror disabled={!oneSize}>Agregar</button>
+      <button
+        type="button"
+        class="btn"
+        data-add-mirror
+        data-add-to-cart
+        data-line={oneSize && product.variants[0] ? line(product.variants[0]) : undefined}
+        disabled={soldOut || !oneSize}
+      >{soldOut ? "Agotado" : "Agregar"}</button>
     </div>
   </div>
 </Layout>
@@ -224,7 +260,16 @@ const accordions = [
     letter-spacing: 0.04em;
     transition: all var(--dur-1) var(--ease-out);
   }
-  .pdp__size:hover { border-color: var(--text); }
+  .pdp__size:hover:not(:disabled) { border-color: var(--text); }
+  /* talla agotada: visible y tachada, informa disponibilidad */
+  .pdp__size:disabled {
+    color: var(--text-mute);
+    cursor: not-allowed;
+    text-decoration: line-through;
+    opacity: .55;
+  }
+  .pdp__add:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .pdp__add.is-added { background: var(--loirn-ink); }
   .pdp__size.is-on { background: var(--loirn-ink); color: var(--loirn-paper); border-color: var(--loirn-ink); }
 
   .pdp__add {
@@ -309,37 +354,39 @@ const accordions = [
     const add = document.querySelector<HTMLButtonElement>("[data-add]");
     const addLabel = document.querySelector<HTMLElement>("[data-add-label]");
     const addMirror = document.querySelector<HTMLButtonElement>("[data-add-mirror]");
-    let chosen = document.querySelector<HTMLElement>(".pdp__size.is-on")?.dataset.size || null;
+    // La talla elegida define la variante: se copia su línea de carrito a los
+    // dos botones de compra y el handler global de CartDrawer hace el resto.
+    const buyButtons = [add, addMirror].filter(Boolean) as HTMLButtonElement[];
+
+    function choose(b: HTMLButtonElement) {
+      sizeWrap.querySelectorAll(".pdp__size").forEach((x) => {
+        x.classList.remove("is-on");
+        x.setAttribute("aria-checked", "false");
+      });
+      b.classList.add("is-on");
+      b.setAttribute("aria-checked", "true");
+      buyButtons.forEach((btn) => {
+        btn.disabled = false;
+        if (b.dataset.line) btn.dataset.line = b.dataset.line;
+      });
+      if (addLabel) addLabel.textContent = "Agregar al carrito";
+    }
 
     sizeWrap.querySelectorAll<HTMLButtonElement>(".pdp__size").forEach((b) => {
-      b.addEventListener("click", () => {
-        sizeWrap.querySelectorAll(".pdp__size").forEach((x) => {
-          x.classList.remove("is-on"); x.setAttribute("aria-checked", "false");
-        });
-        b.classList.add("is-on"); b.setAttribute("aria-checked", "true");
-        chosen = b.dataset.size || null;
-        if (add) add.disabled = false;
-        if (addMirror) addMirror.disabled = false;
-        if (addLabel) addLabel.textContent = "Agregar al carrito";
-      });
+      b.addEventListener("click", () => choose(b));
     });
 
-    const doAdd = () => {
-      if (!chosen && add?.disabled) return;
-      add?.classList.add("is-done");
-      if (addLabel) addLabel.textContent = chosen ? `Añadido · talla ${chosen}` : "Añadido";
-      const cart = document.querySelector(".nav__cart span");
-      if (cart) {
-        const n = (parseInt(cart.textContent!.replace(/\D/g, "")) || 0) + 1;
-        cart.textContent = `(${n})`;
-      }
-      setTimeout(() => {
-        add?.classList.remove("is-done");
-        if (addLabel) addLabel.textContent = "Agregar al carrito";
-      }, 1800);
-    };
-    add?.addEventListener("click", doAdd);
-    addMirror?.addEventListener("click", doAdd);
+    // Confirmación visual: el añadido en sí lo dispara el handler global.
+    buyButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.disabled || !btn.dataset.line) return;
+        const size = sizeWrap.querySelector<HTMLElement>(".pdp__size.is-on")?.dataset.size;
+        if (addLabel) addLabel.textContent = size ? `Añadido · talla ${size}` : "Añadido";
+        setTimeout(() => {
+          if (addLabel) addLabel.textContent = "Agregar al carrito";
+        }, 1800);
+      });
+    });
 
     document.querySelector("[data-open-guide]")?.addEventListener("click", () => {
       document.querySelectorAll<HTMLDetailsElement>(".pdp__accordions details").forEach((d, i) => {

@@ -1,12 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ProductCard from "../components/ProductCard.astro";
-import { products } from "../data/products.js";
+import { getProducts } from "../lib/shop";
 import promoTrio from "../assets/3 basicas 150.jpeg";
 import promoFits from "../assets/Basica varios fit.jpeg";
 
 /* La básica es la capa cero: recomendamos lo que va encima. */
-const layers = products.filter((p) => p.slug !== "estilo-propio-tee");
+const layers = (await getProducts()).filter((p) => p.slug !== "estilo-propio-tee");
 
 const fits = [
   {

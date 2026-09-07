@@ -36,9 +36,10 @@ const isActive = (href: string) =>
           <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>
         </svg>
       </a>
-      <a href="/catalogo" class="nav__link nav__cart">
-        Cart <span aria-hidden="true">(0)</span>
-      </a>
+      <button type="button" class="nav__link nav__cart" data-cart-open aria-label="Abrir carrito">
+        Cart <span data-cart-count aria-hidden="true">(0)</span>
+        <span class="nav__cart-dot" data-cart-badge hidden>0</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -79,7 +80,24 @@ const isActive = (href: string) =>
   .nav__link.is-active { color: var(--loirn-paper); }
   .nav__link.is-active { text-decoration: underline; text-underline-offset: 6px; }
   .nav__link--search { display: inline-grid; place-items: center; }
-  .nav__cart span { color: rgba(235, 236, 236, 0.5); }
+  .nav__cart { position: relative; display: inline-flex; align-items: center; gap: .4em; }
+  .nav__cart [data-cart-count] { color: rgba(235, 236, 236, 0.5); }
+  /* Punto con el total: es lo que se ve cuando el "(n)" se oculta en móvil. */
+  .nav__cart-dot {
+    position: absolute;
+    top: -2px; right: -12px;
+    min-width: 17px; height: 17px;
+    padding-inline: 4px;
+    display: grid; place-items: center;
+    border-radius: var(--r-pill);
+    background: var(--loirn-paper);
+    color: var(--loirn-black);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+  .nav__cart-dot[hidden] { display: none; }
 
   /* Marca ÚNICA. Parte gigante y centrada sobre el héroe (--p:0) y se
      encoge + sube hasta encajar en la barra (--p:1). En páginas sin héroe
@@ -129,7 +147,8 @@ const isActive = (href: string) =>
   }
 
   @media (max-width: 640px) {
-    .nav__cart span { display: none; }
+    .nav__cart [data-cart-count] { display: none; }
+    .nav__cart-dot { right: -10px; }
     .nav { gap: 0.9rem; }
     .header-brand-hit { width: 42px; --brand-w1: 42px; }
     .header-brand { --brand-w1: 42px; }

@@ -3,9 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import Basicas from "../components/Basicas.astro";
 import ProductCard from "../components/ProductCard.astro";
-import { products } from "../data/products.js";
+import { getFeatured } from "../lib/shop";
 
-const featured = products.filter((p) => p.featured);
+const featured = await getFeatured();
 const values = [
   ["Presencia", "La ropa comunica antes de que hables."],
   ["Criterio", "Asesoría real: cómo combinar, cómo usarlo."],
