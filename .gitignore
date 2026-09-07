@@ -33,3 +33,5 @@ CLAUDE.md
 
 # CI / workflows
 .github/
+.vercel
+.env*
