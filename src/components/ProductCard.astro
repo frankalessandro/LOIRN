@@ -13,11 +13,6 @@ const href = `/producto/${product.slug}`;
 // El morph hacia la ficha usa un nombre compartido (`product-shot` /
 // `product-title`) que un script coloca sobre la card en la que se hace
 // click. `share={false}` (relacionados) = sin morph, solo fundido.
-const initials = product.collection
-  .replace(/^LOIRN\s*/i, "")
-  .trim()
-  .charAt(0)
-  .toUpperCase();
 
 // Compra rápida: cada talla del desplegable lleva serializada su propia
 // línea de carrito, con el variantId que el checkout de Shopify espera.
@@ -36,24 +31,28 @@ const oneSize = product.variants.length === 1;
 const soldOut = !product.availableForSale;
 const only = product.variants[0];
 const pickerId = `sizes-${product.slug}`;
+const subtitle = [product.collection, product.colorway].filter(Boolean).join(" · ");
 ---
 
-<article class="pcard" data-pcard data-morph={share ? "1" : "0"} data-images={JSON.stringify(product.images)}>
+<article class="pcard" data-pcard data-slug={product.slug} data-morph={share ? "1" : "0"} data-images={JSON.stringify(product.images)}>
   <div class="pcard__stage">
     <div class="pcard__tools">
-      <button class="icon-btn icon-btn--glass" type="button" aria-pressed="false" data-wish aria-label="Guardar en favoritos">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+      <button class="pcard__icon" type="button" aria-pressed="false" data-wish aria-label="Guardar en favoritos">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 21s-7.5-4.6-10-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 10 6c-2.5 4.4-10 9-10 9Z"></path>
         </svg>
       </button>
-      <a class="icon-btn icon-btn--glass" href={href} aria-label="Ver prenda">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 15V4M8 8l4-4 4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"></path>
-        </svg>
-      </a>
     </div>
 
-    <div class="pcard__orbit" aria-hidden="true"></div>
+    <div class="pcard__spin" role="group" aria-label="Cambiar vista">
+      <button type="button" data-prev aria-label="Vista anterior">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 6-6 6 6 6"></path></svg>
+      </button>
+      <span class="pcard__spin-div"></span>
+      <button type="button" data-next aria-label="Vista siguiente">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 6 6 6-6 6"></path></svg>
+      </button>
+    </div>
 
     <a href={href} class="pcard__frame" aria-label={`Ver ${product.name}`}>
       <img
@@ -67,264 +66,223 @@ const pickerId = `sizes-${product.slug}`;
       />
     </a>
 
-    <div class="pcard__spin" role="group" aria-label="Cambiar vista">
-      <button type="button" data-prev aria-label="Vista anterior">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 6-6 6 6 6"></path></svg>
-      </button>
-      <span class="pcard__spin-div"></span>
-      <button type="button" data-next aria-label="Vista siguiente">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 6 6 6-6 6"></path></svg>
-      </button>
-    </div>
+    <div class="pcard__scrim" aria-hidden="true"></div>
 
-    {product.discountLabel && (
-      <span class="badge-disc pcard__disc">{product.discountLabel}</span>
-    )}
-  </div>
-
-  <div class="pcard__meta">
-    <a href={href}>
-      <h3 class="pcard__title">{product.name}</h3>
-    </a>
-    <div class="pcard__line pcard__line--b">
-      <span class="seller">
-        <span class="seller__avatar">{initials}</span>
-        {product.collection}
-      </span>
-      <span class="pcard__prices">
-        {product.compareAt && (
-          <s class="pcard__was u-price">{money(product.compareAt)}</s>
+    <div class="pcard__overlay">
+      <div class="pcard__headline">
+        <a href={href}>
+          <h3 class="pcard__title">{product.name}</h3>
+        </a>
+        {product.discountLabel && (
+          <span class="badge-disc pcard__disc">{product.discountLabel}</span>
         )}
-        <span class="u-price pcard__now">{money(product.price)}</span>
-      </span>
-    </div>
-  </div>
-
-  <div class="pcard__actions">
-    {oneSize && only ? (
-      <button
-        type="button"
-        class="glass-pill pcard__size pcard__size--one"
-        data-add-to-cart
-        data-line={line(only)}
-        disabled={soldOut}
-      >
-        Talla {only.size}
-      </button>
-    ) : (
-      <div class="pcard__picker" data-picker>
-        <button
-          type="button"
-          class="glass-pill pcard__size"
-          data-picker-toggle
-          aria-expanded="false"
-          aria-controls={pickerId}
-          disabled={soldOut}
-        >
-          <span data-picker-label>Elegir talla</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"></path></svg>
-        </button>
-
-        <div class="pcard__sizes" id={pickerId} data-picker-menu hidden>
-          <p class="pcard__sizes-head u-code">Talla</p>
-          <div class="pcard__sizes-grid">
-            {product.variants.map((v) => (
-              <button
-                type="button"
-                class="pcard__sizebtn"
-                data-add-to-cart
-                data-line={line(v)}
-                disabled={!v.availableForSale}
-                aria-label={v.availableForSale
-                  ? `Agregar talla ${v.size} al carrito`
-                  : `Talla ${v.size} agotada`}
-              >
-                {v.size}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
-    )}
 
-    <a href={href} class="icon-btn icon-btn--glass pcard__3d" aria-label="Ver ficha completa">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"></path><path d="m3 7 9 5 9-5M12 12v10"></path>
-      </svg>
-    </a>
+      {subtitle && <p class="pcard__sub">{subtitle}</p>}
 
-    {oneSize && only ? (
-      <button type="button" class="btn pcard__add" data-add-to-cart data-line={line(only)} disabled={soldOut}>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"></path></svg>
-        <span>{soldOut ? "Agotado" : "Agregar"}</span>
-      </button>
-    ) : (
-      <button type="button" class="btn pcard__add" data-picker-toggle disabled={soldOut}>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"></path></svg>
-        <span>{soldOut ? "Agotado" : "Agregar"}</span>
-      </button>
-    )}
+      <div class="pcard__row">
+        <span class="pcard__prices">
+          {product.compareAt && (
+            <s class="pcard__was u-price">{money(product.compareAt)}</s>
+          )}
+          <span class="u-price pcard__now">{money(product.price)}</span>
+        </span>
+
+        {oneSize && only ? (
+          <button
+            type="button"
+            class="pcard__cta"
+            data-add-to-cart
+            data-line={line(only)}
+            disabled={soldOut}
+          >
+            {soldOut ? "Agotado" : `Talla ${only.size}`}
+          </button>
+        ) : (
+          <div class="pcard__picker" data-picker>
+            <button
+              type="button"
+              class="pcard__cta"
+              data-picker-toggle
+              aria-expanded="false"
+              aria-controls={pickerId}
+              disabled={soldOut}
+            >
+              <span data-picker-label>{soldOut ? "Agotado" : "Elegir talla"}</span>
+              {!soldOut && (
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"></path></svg>
+              )}
+            </button>
+
+            <div class="pcard__sizes" id={pickerId} data-picker-menu hidden>
+              <p class="pcard__sizes-head u-code">Talla</p>
+              <div class="pcard__sizes-grid">
+                {product.variants.map((v) => (
+                  <button
+                    type="button"
+                    class="pcard__sizebtn"
+                    data-add-to-cart
+                    data-line={line(v)}
+                    disabled={!v.availableForSale}
+                    aria-label={v.availableForSale
+                      ? `Agregar talla ${v.size} al carrito`
+                      : `Talla ${v.size} agotada`}
+                  >
+                    {v.size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   </div>
 </article>
 
 <style>
   .pcard {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-4);
-    padding: clamp(0.9rem, 2vw, 1.35rem);
+    position: relative;
     border-radius: var(--r-lg);
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
     box-shadow: var(--sh-glass);
-    backdrop-filter: blur(var(--glass-blur));
     transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
   }
   .pcard:hover {
     transform: translateY(-4px);
-    box-shadow: 0 52px 90px -28px rgba(12, 12, 13, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    box-shadow: 0 52px 90px -28px rgba(12, 12, 13, 0.34);
   }
 
-  /* ---- Escenario del producto ---- */
+  /* ---- Escenario: foto a sangre, borde a borde ---- */
   .pcard__stage {
     position: relative;
-    border-radius: calc(var(--r-lg) - 8px);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-    padding: clamp(0.75rem, 2vw, 1.1rem);
-    aspect-ratio: 5 / 6;
-    display: grid;
-    place-items: center;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--r-lg);
+    background: linear-gradient(155deg, var(--loirn-paper-2) 0%, var(--loirn-paper-3) 100%);
     isolation: isolate;
   }
-  .pcard__tools {
-    position: absolute;
-    inset: clamp(0.75rem, 2vw, 1.1rem) clamp(0.75rem, 2vw, 1.1rem) auto;
-    display: flex;
-    justify-content: space-between;
-    z-index: 3;
-  }
-  .pcard__frame { display: block; width: 84%; height: 100%; }
+
+  .pcard__frame { position: absolute; inset: 0; display: block; z-index: 1; }
   .pcard__img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 26px 30px rgba(12, 12, 13, 0.22));
+    object-fit: cover;
+    border-radius: var(--r-lg);
     transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-3) var(--ease-out);
   }
   .pcard[data-busy] .pcard__img { opacity: 0; transform: scale(0.98); }
 
-  /* órbita elíptica tras el producto */
-  .pcard__orbit {
-    position: absolute;
-    left: 50%;
-    top: 62%;
-    width: 78%;
-    aspect-ratio: 1;
-    translate: -50% -50%;
-    border: 1px solid rgba(28, 28, 28, 0.28);
-    border-radius: 50%;
-    transform: scaleY(0.26) rotate(-2deg);
-    z-index: 1;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
-            mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  /* Scrim: oscurece la base de la foto para que el texto flote legible encima */
+  .pcard__scrim {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    border-radius: var(--r-lg);
+    background: linear-gradient(
+      180deg,
+      rgba(12, 12, 13, 0) 40%,
+      rgba(12, 12, 13, 0.35) 68%,
+      rgba(12, 12, 13, 0.88) 100%
+    );
   }
-  .pcard__frame { position: relative; z-index: 2; }
 
-  /* pill de rotación ‹ › sobre la órbita */
+  /* ---- Herramientas flotantes ---- */
+  .pcard__tools { position: absolute; top: var(--sp-3); left: var(--sp-3); z-index: 4; }
+  .pcard__icon {
+    display: inline-grid; place-items: center;
+    width: 38px; height: 38px;
+    border-radius: var(--r-pill);
+    color: var(--loirn-paper);
+    background: rgba(12, 12, 13, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+    transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+  }
+  .pcard__icon:hover { background: rgba(12, 12, 13, 0.5); transform: translateY(-1px); }
+  .pcard__icon.is-on { background: var(--loirn-paper); color: var(--loirn-ink); }
+
+  /* pill de rotación ‹ › — arriba, centrada */
   .pcard__spin {
     position: absolute;
-    left: 50%;
-    top: calc(62% + 2px);
-    translate: -50% -50%;
+    top: var(--sp-3); left: 50%;
+    translate: -50% 0;
     z-index: 4;
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    display: flex; align-items: center;
+    background: rgba(12, 12, 13, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: var(--r-pill);
-    box-shadow: var(--sh-md);
     backdrop-filter: blur(8px);
   }
   .pcard__spin button {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 34px;
-    color: var(--loirn-ink);
+    display: grid; place-items: center;
+    width: 32px; height: 30px;
+    color: var(--loirn-paper);
     transition: background var(--dur-1) var(--ease-out);
     border-radius: var(--r-pill);
   }
-  .pcard__spin button:hover { background: rgba(28, 28, 28, 0.08); }
-  .pcard__spin-div { width: 1px; height: 16px; background: rgba(28, 28, 28, 0.18); }
+  .pcard__spin button:hover { background: rgba(255, 255, 255, 0.16); }
+  .pcard__spin-div { width: 1px; height: 14px; background: rgba(255, 255, 255, 0.24); }
 
-  .pcard__disc {
-    position: absolute;
-    left: clamp(0.4rem, 1.5vw, 0.9rem);
-    bottom: clamp(0.4rem, 1.5vw, 0.9rem);
-    z-index: 4;
+  /* ---- Info sobre el scrim ---- */
+  .pcard__overlay {
+    position: absolute; inset: auto 0 0 0; z-index: 3;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    display: grid; gap: .4em;
+    color: var(--loirn-paper);
   }
-
-  /* ---- Meta ---- */
-  .pcard__meta {
-    display: grid;
-    gap: var(--sp-3);
-    padding-top: var(--sp-3);
-    border-top: 1px solid rgba(28, 28, 28, 0.1);
-  }
-  .pcard__line { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+  .pcard__headline { display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; }
   .pcard__title {
-    font-size: clamp(2rem, 1.4rem + 2vw, 2.7rem);
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);
     font-weight: 600;
     letter-spacing: 0.01em;
-    line-height: 0.92;
+    line-height: 0.95;
+    color: var(--loirn-paper);
   }
+  .pcard__disc { flex-shrink: 0; padding: .3em .7em; font-size: var(--fs-100); }
+  .pcard__sub {
+    font-family: var(--font-label); text-transform: uppercase;
+    letter-spacing: .08em; font-size: var(--fs-100);
+    color: rgba(235, 236, 236, 0.66);
+  }
+
+  .pcard__row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-top: .3em; }
   .pcard__prices { display: inline-flex; align-items: baseline; gap: var(--sp-2); white-space: nowrap; }
-  .pcard__was {
-    color: var(--text-mute);
-    font-size: var(--fs-300);
-    text-decoration-thickness: 1px;
-  }
-  .pcard__now { font-size: clamp(1.9rem, 1.3rem + 2vw, 2.7rem); }
+  .pcard__was { color: rgba(235, 236, 236, 0.55); font-size: var(--fs-200); text-decoration-thickness: 1px; }
+  .pcard__now { font-size: clamp(1.2rem, 1rem + .8vw, 1.5rem); }
 
-  /* ---- Acciones ---- */
-  .pcard__actions {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: var(--sp-2);
-    align-items: center;
-  }
-  .pcard__size {
-    justify-content: space-between;
-    width: 100%;
-    white-space: nowrap;
+  /* ---- CTA: pill de vidrio oscuro, mismo trato que "Follow" ---- */
+  .pcard__cta {
+    display: inline-flex; align-items: center; gap: .4em;
+    padding: .7em 1.1em;
+    border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(10px);
+    color: var(--loirn-paper);
+    font-family: var(--font-label);
+    font-weight: 400;
     font-size: var(--fs-200);
-    padding-inline: 1em;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
   }
-  .pcard__add { padding-inline: 1.1em; white-space: nowrap; font-size: var(--fs-200); }
-
-  .pcard__add:disabled,
-  .pcard__size:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-
-  /* confirmación breve tras añadir */
-  .pcard__add.is-added,
-  .pcard__sizebtn.is-added,
-  .pcard__size--one.is-added { background: var(--loirn-ink); color: var(--loirn-paper); }
+  .pcard__cta:hover:not(:disabled) { background: rgba(255, 255, 255, 0.24); transform: translateY(-1px); }
+  .pcard__cta:disabled { opacity: .5; cursor: not-allowed; }
+  .pcard__cta.is-added { background: var(--loirn-paper); color: var(--loirn-ink); }
 
   /* ---- Desplegable de tallas (compra rápida) ---- */
-  .pcard__picker { position: relative; min-width: 0; }
+  .pcard__picker { position: relative; }
   /* la card con el desplegable abierto se pone por encima de sus vecinas */
   .pcard:has([data-picker-menu]:not([hidden])) { position: relative; z-index: 40; }
 
   .pcard__sizes {
     position: absolute;
     bottom: calc(100% + 8px);
-    left: 0;
-    min-width: max(100%, 210px);
+    right: 0;
+    min-width: 210px;
     z-index: 30;
     padding: var(--sp-3);
     display: grid;
     gap: var(--sp-2);
-    background: rgba(255, 255, 255, .92);
+    background: rgba(255, 255, 255, .96);
     border: 1px solid var(--glass-border);
     border-radius: var(--r-md);
     box-shadow: var(--sh-lg);
@@ -345,6 +303,7 @@ const pickerId = `sizes-${product.slug}`;
     text-transform: uppercase;
     letter-spacing: .06em;
     font-size: var(--fs-200);
+    color: var(--loirn-ink);
     transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
   }
   .pcard__sizebtn:hover:not(:disabled) { background: var(--loirn-ink); color: var(--loirn-paper); }
@@ -354,11 +313,6 @@ const pickerId = `sizes-${product.slug}`;
     cursor: not-allowed;
     text-decoration: line-through;
     opacity: .6;
-  }
-
-  @media (max-width: 420px) {
-    .pcard__actions { grid-template-columns: 1fr auto; }
-    .pcard__3d { display: none; }
   }
 </style>
 
@@ -422,11 +376,20 @@ const pickerId = `sizes-${product.slug}`;
       }
 
       const wish = card.querySelector<HTMLButtonElement>("[data-wish]");
-      wish?.addEventListener("click", () => {
-        const on = wish.getAttribute("aria-pressed") === "true";
-        wish.setAttribute("aria-pressed", String(!on));
-        wish.classList.toggle("is-on", !on);
-      });
+      const slug = card.dataset.slug ?? "";
+
+      if (wish && slug) {
+        import("../lib/wishlist/store").then(({ isWishlisted, toggleWish, subscribe }) => {
+          const update = () => {
+            const on = isWishlisted(slug);
+            wish.setAttribute("aria-pressed", String(on));
+            wish.classList.toggle("is-on", on);
+          };
+          update();
+          subscribe(update);
+          wish.addEventListener("click", () => toggleWish(slug));
+        });
+      }
     });
   }
 

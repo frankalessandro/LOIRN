@@ -9,6 +9,8 @@ import type { CatalogFacets, Product } from "./types";
 import { shopifyEnabled } from "./shopify-client";
 import { localAdapter } from "./adapters/local";
 import { shopifyAdapter } from "./adapters/shopify";
+import { withDemoImages } from "./demo-images";
+import { withDemoContent } from "./demo-content";
 
 const adapter = shopifyEnabled ? shopifyAdapter : localAdapter;
 
@@ -19,13 +21,16 @@ export const shopSource = shopifyEnabled ? "shopify" : "local";
 let cache: Promise<Product[]> | null = null;
 
 export function getProducts(): Promise<Product[]> {
-  cache ??= adapter.getProducts();
+  cache ??= adapter.getProducts().then(withDemoImages).then(withDemoContent);
   return cache;
 }
 
 export async function getProduct(slug: string): Promise<Product | undefined> {
   const list = await getProducts();
-  return list.find((p) => p.slug === slug) ?? adapter.getProduct(slug);
+  const hit = list.find((p) => p.slug === slug);
+  if (hit) return hit;
+  const p = await adapter.getProduct(slug);
+  return p && withDemoContent(await withDemoImages([p]))[0];
 }
 
 export async function getFeatured(): Promise<Product[]> {

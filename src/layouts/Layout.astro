@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import CartDrawer from "../components/CartDrawer.astro";
+import SearchModal from "../components/SearchModal.astro";
 
 interface Props {
   title?: string;
@@ -51,6 +52,7 @@ const {
     <main id="main"><slot /></main>
     <Footer />
     <CartDrawer />
+    <SearchModal />
 
     <script>
       // Se re-inicializa en cada navegación del ClientRouter (astro:page-load).
@@ -96,6 +98,23 @@ const {
 
       document.addEventListener("astro:page-load", initLoirn);
       document.addEventListener("astro:before-swap", () => _ac?.abort());
+    </script>
+
+    <script>
+      // Wishlist badge — se actualiza en cada página tras cargar.
+      import { getWishlist, subscribe, wishCount } from "../lib/wishlist/store";
+      function updateWishBadge() {
+        const badge = document.querySelector<HTMLElement>("[data-wish-badge]");
+        if (!badge) return;
+        const n = wishCount();
+        badge.textContent = String(n);
+        badge.hidden = n === 0;
+      }
+      if (!(window as any).__loirnWishBadgeWired) {
+        (window as any).__loirnWishBadgeWired = true;
+        subscribe(updateWishBadge);
+      }
+      document.addEventListener("astro:page-load", updateWishBadge);
     </script>
 
     <style>

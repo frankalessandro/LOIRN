@@ -1,0 +1,201 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getProducts, money } from "../lib/shop";
+
+/**
+ * Página de favoritos.
+ * Se renderiza estáticamente con todos los productos serializados;
+ * el cliente filtra por los slugs guardados en localStorage.
+ */
+const products = await getProducts();
+const catalog = products.map((p) => ({
+  slug: p.slug,
+  name: p.name,
+  collection: p.collection,
+  price: p.price,
+  compareAt: p.compareAt,
+  discountLabel: p.discountLabel,
+  image: p.images[0] ?? "",
+  href: `/producto/${p.slug}`,
+}));
+---
+
+<Layout title="Favoritos — LOIRN" nav="solid">
+  <header class="fav-head wrap" data-reveal>
+    <p class="u-kicker">Tu selección</p>
+    <h1>Favoritos</h1>
+  </header>
+
+  <!-- Estado vacío (por defecto visible, se oculta si hay items) -->
+  <section class="section wrap fav-empty" data-fav-empty>
+    <div class="fav-empty__inner" data-reveal>
+      <p class="u-kicker">Sin guardar</p>
+      <h2>Todavía no guardaste nada</h2>
+      <p class="u-lede">Hacé clic en el corazón de cualquier prenda para agregarla acá.</p>
+      <a class="btn" href="/catalogo">Ver catálogo</a>
+    </div>
+  </section>
+
+  <!-- Grid de favoritos (se construye en cliente) -->
+  <section class="section wrap" data-fav-grid-section hidden>
+    <div class="section-head">
+      <div>
+        <p class="u-kicker" data-fav-count-label>0 prendas guardadas</p>
+        <h2>Tu wishlist</h2>
+      </div>
+      <a class="btn btn--ghost" href="/catalogo">Ver catálogo</a>
+    </div>
+    <ul class="fav-grid" data-fav-grid></ul>
+    <div class="fav-clear-wrap">
+      <button type="button" class="fav-clear" data-fav-clear>Borrar todos los favoritos</button>
+    </div>
+  </section>
+
+  <!-- Catálogo serializado para hidratar en cliente -->
+  <script define:vars={{ catalog }}>
+    window.__loirnFavCatalog = catalog;
+  </script>
+</Layout>
+
+<style>
+  .fav-head {
+    padding-block: clamp(5rem, 12vw, 9rem) clamp(2rem, 5vw, 4rem);
+    display: grid; gap: var(--sp-4);
+  }
+  .fav-head h1 { font-size: var(--fs-700); }
+
+  .fav-empty { padding-top: 0; }
+  .fav-empty__inner { display: grid; gap: var(--sp-5); }
+  .fav-empty__inner h2 { font-size: var(--fs-600); }
+
+  .fav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+  }
+
+  /* Las tarjetas se inyectan por JS: no llevan el atributo de scope de
+     Astro, así que sus reglas van con :global() colgando de .fav-grid
+     (mismo patrón que CartDrawer.astro). */
+  .fav-grid :global(.fav-card) {
+    display: grid; gap: var(--sp-3);
+    padding: var(--sp-4);
+    border-radius: var(--r-lg);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--sh-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    position: relative;
+    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+  .fav-grid :global(.fav-card:hover) { transform: translateY(-3px); box-shadow: 0 40px 70px -20px rgba(12,12,13,.28), inset 0 1px 0 rgba(255,255,255,.9); }
+
+  .fav-grid :global(.fav-card__img-wrap) {
+    aspect-ratio: 4 / 5; border-radius: calc(var(--r-lg) - 8px);
+    background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0));
+    display: grid; place-items: center; overflow: hidden;
+  }
+  .fav-grid :global(.fav-card__img) { width: 80%; height: 100%; object-fit: contain; filter: drop-shadow(0 14px 20px rgba(12,12,13,.18)); }
+
+  .fav-grid :global(.fav-card__name) {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(1.5rem, 1rem + 2vw, 2rem);
+    line-height: 0.92; letter-spacing: var(--tracking-display); text-transform: uppercase;
+  }
+  .fav-grid :global(.fav-card__collection) { font-family: var(--font-label); text-transform: uppercase; letter-spacing: .08em; font-size: var(--fs-200); color: var(--text-soft); }
+  .fav-grid :global(.fav-card__prices) { display: inline-flex; align-items: baseline; gap: var(--sp-2); }
+  .fav-grid :global(.fav-card__was) { color: var(--text-mute); font-size: var(--fs-200); text-decoration: line-through; text-decoration-thickness: 1px; }
+  .fav-grid :global(.fav-card__now) { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.4rem, 1rem + 1.5vw, 1.9rem); }
+
+  .fav-grid :global(.fav-card__rm) {
+    position: absolute; top: var(--sp-3); right: var(--sp-3);
+    width: 36px; height: 36px; border-radius: var(--r-pill);
+    display: grid; place-items: center;
+    background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.85);
+    backdrop-filter: blur(10px); box-shadow: var(--sh-inset-pill);
+    color: var(--loirn-ink);
+    transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+  }
+  .fav-grid :global(.fav-card__rm:hover) { background: var(--loirn-ink); color: var(--loirn-paper); }
+
+  .fav-grid :global(.fav-card__cta) { display: flex; gap: var(--sp-2); }
+  .fav-grid :global(.fav-card__link) { flex: 1; text-align: center; }
+
+  .fav-clear-wrap { margin-top: var(--sp-7); display: flex; justify-content: center; }
+  .fav-clear {
+    font-family: var(--font-label); text-transform: uppercase; letter-spacing: .1em;
+    font-size: var(--fs-200); color: var(--text-mute);
+    border-bottom: 1px solid currentColor; padding-bottom: .15em;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+  .fav-clear:hover { color: var(--text); }
+</style>
+
+<script>
+  import { getWishlist, toggleWish, subscribe } from "../lib/wishlist/store";
+  import { money } from "../lib/shop/money";
+
+  interface CatalogItem {
+    slug: string; name: string; collection: string;
+    price: number; compareAt: number | null;
+    image: string; href: string;
+  }
+
+  function initFavPage() {
+    const catalog = ((window as any).__loirnFavCatalog as CatalogItem[]) ?? [];
+
+    const gridSection = document.querySelector<HTMLElement>("[data-fav-grid-section]");
+    const emptySection = document.querySelector<HTMLElement>("[data-fav-empty]");
+    const grid = document.querySelector<HTMLElement>("[data-fav-grid]");
+    const countLabel = document.querySelector<HTMLElement>("[data-fav-count-label]");
+    const clearBtn = document.querySelector<HTMLElement>("[data-fav-clear]");
+
+    function render() {
+      const { slugs } = getWishlist();
+      const items = catalog.filter((p) => slugs.includes(p.slug));
+      if (!gridSection || !emptySection || !grid) return;
+
+      if (items.length === 0) {
+        emptySection.hidden = false;
+        gridSection.hidden = true;
+      } else {
+        emptySection.hidden = true;
+        gridSection.hidden = false;
+        if (countLabel) {
+          const n = items.length;
+          countLabel.textContent = `${n} prenda${n !== 1 ? "s" : ""} guardada${n !== 1 ? "s" : ""}`;
+        }
+        grid.innerHTML = items.map((p) => `
+          <li class="fav-card">
+            <button type="button" class="fav-card__rm" data-rm="${p.slug}" aria-label="Quitar ${p.name} de favoritos">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+            <a href="${p.href}" class="fav-card__img-wrap">
+              <img class="fav-card__img" src="${p.image}" alt="${p.name}" width="440" height="560" loading="lazy" decoding="async"/>
+            </a>
+            <p class="fav-card__collection">${p.collection}</p>
+            <a href="${p.href}" class="fav-card__name">${p.name}</a>
+            <div class="fav-card__prices">
+              ${p.compareAt ? `<s class="fav-card__was">${money(p.compareAt)}</s>` : ""}
+              <span class="fav-card__now">${money(p.price)}</span>
+            </div>
+            <a href="${p.href}" class="btn fav-card__link">Ver prenda</a>
+          </li>
+        `).join("");
+
+        grid.querySelectorAll<HTMLButtonElement>("[data-rm]").forEach((btn) => {
+          btn.addEventListener("click", () => toggleWish(btn.dataset.rm!));
+        });
+      }
+    }
+
+    render();
+    subscribe(render);
+
+    clearBtn?.addEventListener("click", () => {
+      [...getWishlist().slugs].forEach((s) => toggleWish(s));
+    });
+  }
+
+  document.addEventListener("astro:page-load", initFavPage);
+</script>

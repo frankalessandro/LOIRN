@@ -1,0 +1,212 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import { drops, getDrop } from "../../data/drops";
+import { getProducts } from "../../lib/shop";
+
+export async function getStaticPaths() {
+  return drops.map((d) => ({ params: { slug: d.slug } }));
+}
+
+const { slug } = Astro.params;
+const drop = getDrop(slug!);
+if (!drop) return Astro.redirect("/drops");
+
+const allProducts = await getProducts();
+const products = drop.productSlugs.length
+  ? allProducts.filter((p) => drop.productSlugs.includes(p.slug))
+  : [];
+---
+
+<Layout
+  title={`${drop.name} — LOIRN`}
+  description={drop.description}
+  nav="solid"
+>
+  <!-- Hero del drop -->
+  <section class="drop-hero" data-status={drop.status}>
+    <div class="drop-hero__scrim"></div>
+    <div class="wrap drop-hero__inner">
+      <div class="drop-hero__meta" data-reveal>
+        <span class="u-code drop-hero__num">DROP {drop.number}</span>
+        <h1 class="drop-hero__headline">{drop.headline}</h1>
+        <p class="drop-hero__season u-kicker">{drop.season}</p>
+      </div>
+
+      <div class="drop-hero__side" data-reveal>
+        <span class={`drop-badge drop-badge--${drop.status}`}>
+          {drop.status === "upcoming" ? "Próximo" : drop.status === "active" ? "Activo" : "Agotado"}
+        </span>
+
+        {drop.status === "upcoming" && (
+          <div class="countdown" data-countdown={drop.launchDate} aria-label="Tiempo para el lanzamiento">
+            <div class="cd-block"><span class="cd-n" data-cd-days>--</span><span class="cd-l u-code">días</span></div>
+            <div class="cd-sep" aria-hidden="true">:</div>
+            <div class="cd-block"><span class="cd-n" data-cd-hours>--</span><span class="cd-l u-code">horas</span></div>
+            <div class="cd-sep" aria-hidden="true">:</div>
+            <div class="cd-block"><span class="cd-n" data-cd-mins>--</span><span class="cd-l u-code">min</span></div>
+            <div class="cd-sep" aria-hidden="true">:</div>
+            <div class="cd-block"><span class="cd-n" data-cd-secs>--</span><span class="cd-l u-code">seg</span></div>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee del drop -->
+  <div class="marquee drop-marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>{drop.name}</span><span>Vístete con presencia</span>
+      <span>LOIRN · {drop.season}</span><span>{drop.name}</span>
+    </div>
+    <div class="marquee__track">
+      <span>{drop.name}</span><span>Vístete con presencia</span>
+      <span>LOIRN · {drop.season}</span><span>{drop.name}</span>
+    </div>
+  </div>
+
+  <!-- Descripción del drop -->
+  <section class="section wrap drop-desc">
+    <div data-reveal>
+      <p class="u-kicker">Sobre el drop</p>
+      <p class="drop-desc__text">{drop.description}</p>
+    </div>
+  </section>
+
+  <!-- Productos del drop -->
+  {products.length > 0 ? (
+    <section class="section wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="u-kicker">{drop.number} — Prendas</p>
+          <h2>La colección</h2>
+        </div>
+        <a class="btn btn--ghost" href="/catalogo">Ver catálogo completo</a>
+      </div>
+      <div class="pgrid">
+        {products.map((p, i) => (
+          <div data-reveal style={`transition-delay:${(i % 3) * 70}ms`}>
+            <ProductCard product={p} eager={i < 2} />
+          </div>
+        ))}
+      </div>
+    </section>
+  ) : (
+    <section class="section wrap">
+      <div class="upcoming-msg" data-reveal>
+        <p class="u-kicker">Muy pronto</p>
+        <h2>Prendas en camino</h2>
+        <p class="u-lede">El detalle de la colección se revela en el lanzamiento. Seguinos en Instagram para los primeros looks.</p>
+        <div class="upcoming-msg__ctas">
+          <a class="btn" href="https://instagram.com/loirn.co" target="_blank" rel="noopener">Instagram</a>
+          <a class="btn btn--ghost" href="/drops">Todos los drops</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <nav class="section wrap drop-nav" aria-label="Navegación del drop">
+    <a href="/drops" class="btn btn--ghost" data-nav-back>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 6-6 6 6 6"/></svg>
+      Todos los drops
+    </a>
+  </nav>
+</Layout>
+
+<style>
+  .drop-hero {
+    position: relative; min-height: 520px;
+    padding-top: var(--header-h);
+    display: flex; align-items: flex-end;
+    background: var(--d-bg); isolation: isolate; overflow: clip;
+  }
+  .drop-hero[data-status="upcoming"] { min-height: 640px; }
+  .drop-hero__scrim {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(140% 90% at 50% 0%, rgba(28,28,28,.4) 0%, rgba(12,12,13,.95) 80%);
+  }
+  .drop-hero__inner {
+    position: relative; z-index: 1;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: var(--sp-6); flex-wrap: wrap;
+    padding-block: clamp(3rem, 8vw, 6rem);
+    color: var(--d-text);
+  }
+  .drop-hero__meta { display: grid; gap: var(--sp-3); }
+  .drop-hero__num  { color: var(--d-text-soft); }
+  .drop-hero__headline {
+    font-size: clamp(2.8rem, 1.5rem + 6vw, 6rem);
+    text-transform: uppercase; font-weight: 600;
+    letter-spacing: var(--tracking-display); line-height: 0.9; max-width: 14ch;
+  }
+  .drop-hero__season { color: var(--d-text-soft); }
+  .drop-hero__side   { display: grid; gap: var(--sp-4); align-items: start; }
+
+  .drop-badge {
+    display: inline-flex; align-items: center; padding: .5em 1.2em;
+    border-radius: var(--r-pill); font-family: var(--font-label);
+    font-size: var(--fs-200); text-transform: uppercase; letter-spacing: .14em; width: fit-content;
+  }
+  .drop-badge--active   { background: var(--loirn-paper); color: var(--loirn-ink); }
+  .drop-badge--upcoming { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(235,236,236,.3); color: var(--d-text-soft); }
+  .drop-badge--soldout  { background: rgba(235,236,236,.15); color: var(--d-text-soft); }
+
+  /* Countdown grande en la ficha */
+  .countdown { display: flex; align-items: center; gap: clamp(.75rem, 2vw, 1.5rem); }
+  .cd-block { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+  .cd-n {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 1rem + 6vw, 5.5rem);
+    font-weight: 600; color: var(--loirn-paper); line-height: 1; min-width: 2ch; text-align: center;
+  }
+  .cd-l { color: rgba(235,236,236,.4); font-size: var(--fs-100); }
+  .cd-sep { font-family: var(--font-display); font-size: clamp(2.2rem, 1rem + 4vw, 4.5rem); color: rgba(235,236,236,.25); line-height: 1; padding-bottom: 1.2rem; }
+
+  .drop-marquee { border-color: var(--border); color: var(--text); background: var(--bg-raised); }
+
+  .drop-desc { display: grid; gap: var(--sp-5); }
+  .drop-desc__text { font-size: var(--fs-400); color: var(--text-soft); max-width: 60ch; line-height: var(--lh-body); }
+
+  .pgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: clamp(1.25rem, 3vw, 2.25rem);
+  }
+  .upcoming-msg { display: grid; gap: var(--sp-5); }
+  .upcoming-msg h2 { font-size: var(--fs-600); }
+  .upcoming-msg__ctas { display: flex; gap: var(--sp-3); flex-wrap: wrap; }
+  .drop-nav { padding-top: 0; }
+
+  @media (max-width: 640px) {
+    .drop-hero__inner { flex-direction: column; align-items: flex-start; }
+    .cd-sep { display: none; }
+  }
+</style>
+
+<script>
+  function initCountdown() {
+    const el = document.querySelector<HTMLElement>("[data-countdown]");
+    if (!el) return;
+    const target = new Date(el.dataset.countdown!).getTime();
+    const days  = el.querySelector("[data-cd-days]");
+    const hours = el.querySelector("[data-cd-hours]");
+    const mins  = el.querySelector("[data-cd-mins]");
+    const secs  = el.querySelector("[data-cd-secs]");
+    function tick() {
+      const diff = target - Date.now();
+      if (diff <= 0) { el.remove(); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000)  / 60000);
+      const s = Math.floor((diff % 60000)    / 1000);
+      if (days)  days.textContent  = String(d).padStart(2, "0");
+      if (hours) hours.textContent = String(h).padStart(2, "0");
+      if (mins)  mins.textContent  = String(m).padStart(2, "0");
+      if (secs)  secs.textContent  = String(s).padStart(2, "0");
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    document.addEventListener("astro:before-swap", () => clearInterval(id), { once: true });
+  }
+  document.addEventListener("astro:page-load", initCountdown);
+</script>

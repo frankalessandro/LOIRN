@@ -50,7 +50,8 @@ const accordions = [
 
 <Layout title={`${product.name} — LOIRN`} nav="solid">
   <div class="pdp wrap">
-    <a href="/catalogo" class="pdp__back" data-nav-back>
+    <!-- móvil: arriba de la galería (nada es sticky en una columna) -->
+    <a href="/catalogo" class="pdp__back pdp__back--top" data-nav-back>
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 6-6 6 6 6"></path></svg>
       Catálogo
     </a>
@@ -58,6 +59,11 @@ const accordions = [
     <div class="pdp__layout">
       <!-- INFO (sticky · izquierda en desktop) -->
       <aside class="pdp__info">
+        <!-- ≥700px: dentro de la columna sticky, así no se va con el scroll -->
+        <a href="/catalogo" class="pdp__back pdp__back--side" data-nav-back>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 6-6 6 6 6"></path></svg>
+          Catálogo
+        </a>
         <p class="u-code">{product.drop} · {product.sku}</p>
         <h1 class="pdp__title" transition:name="product-title">{product.name}</h1>
         <div class="pdp__price">
@@ -185,7 +191,11 @@ const accordions = [
 </Layout>
 
 <style>
-  .pdp { padding-top: calc(var(--header-h) + clamp(1rem, 3vw, 2rem)); }
+  .pdp {
+    /* Se reusa en el alto de la vista partida (≥700px) y en el `top` de lo fijo. */
+    --pdp-top: calc(var(--header-h) + clamp(1rem, 3vw, 2rem));
+    padding-top: var(--pdp-top);
+  }
   .pdp__back {
     display: inline-flex; align-items: center; gap: 0.4em;
     font-family: var(--font-label); text-transform: uppercase;
@@ -193,6 +203,11 @@ const accordions = [
     margin-bottom: var(--sp-5);
   }
   .pdp__back:hover { color: var(--text); }
+  .pdp__back--side { display: none; }
+  @media (min-width: 700px) {
+    .pdp__back--top { display: none; }
+    .pdp__back--side { display: inline-flex; }
+  }
 
   .pdp__layout {
     display: grid;
@@ -305,14 +320,17 @@ const accordions = [
     gap: clamp(1.25rem, 3vw, 2.25rem);
   }
 
-  /* ================= DESKTOP: 3 columnas, laterales sticky ================= */
+  /* ================= ≥700px: la página desplaza normal, la galería es la
+     que "avanza" en pantalla porque info/compra quedan pegadas (sticky) al
+     mismo `top` con el que ya arrancan — sin salto ni scroll residual. ===== */
+  @media (min-width: 700px) {
+    .pdp__info, .pdp__buy { position: sticky; top: var(--pdp-top); }
+  }
   @media (min-width: 1100px) {
     .pdp__layout {
       grid-template-columns: minmax(240px, 0.95fr) minmax(0, 1.5fr) minmax(250px, 0.9fr);
       align-items: start;
     }
-    .pdp__info  { position: sticky; top: calc(var(--header-h) + 28px); }
-    .pdp__buy   { position: sticky; top: calc(var(--header-h) + 28px); }
     .pdp__buy-inner {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
@@ -323,10 +341,12 @@ const accordions = [
     }
   }
   @media (min-width: 700px) and (max-width: 1099px) {
-    .pdp__layout { grid-template-columns: minmax(280px, 360px) 1fr; }
-    .pdp__info { position: sticky; top: calc(var(--header-h) + 24px); grid-row: 1 / span 2; }
+    .pdp__layout { grid-template-columns: minmax(280px, 360px) 1fr; align-items: start; }
+    .pdp__info { grid-column: 1; grid-row: 1 / span 2; }
     .pdp__gallery { grid-column: 2; grid-row: 1; }
-    .pdp__buy { grid-column: 1; grid-row: 2; margin-top: var(--sp-4); }
+    /* en esta franja el panel de compra no flota junto a info (no caben los
+       dos pegados en una columna angosta): va debajo, dentro del scroll normal. */
+    .pdp__buy { position: static; grid-column: 1; grid-row: 2; margin-top: var(--sp-4); }
   }
   @media (max-width: 699px) {
     .pdp__gallery {

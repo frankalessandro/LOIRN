@@ -1,0 +1,158 @@
+﻿---
+import Layout from "../../layouts/Layout.astro";
+import { drops } from "../../data/drops";
+---
+
+<Layout title="Drops — LOIRN" nav="solid">
+  <header class="dh wrap" data-reveal>
+    <p class="u-kicker">Lanzamientos</p>
+    <h1>Drops</h1>
+    <p class="u-lede">Cada drop es un sistema cerrado: prendas pensadas para funcionar juntas.</p>
+  </header>
+
+  <section class="section wrap" style="padding-top:0">
+    <ul class="drops-list">
+      {drops.map((drop, i) => (
+        <li class="dcard" data-status={drop.status} data-reveal style={`transition-delay:${i * 60}ms`}>
+          <div class="dcard__header">
+            <div class="dcard__meta">
+              <span class="u-code dcard__num">— {drop.number}</span>
+              <h2 class="dcard__name">{drop.name}</h2>
+              <p class="dcard__season u-kicker">{drop.season}</p>
+            </div>
+            <span class={`dcard__badge dcard__badge--${drop.status}`}>
+              {drop.status === "upcoming" ? "Próximo" : drop.status === "active" ? "Activo" : "Agotado"}
+            </span>
+          </div>
+
+          <p class="dcard__desc">{drop.description}</p>
+
+          {drop.status === "upcoming" && (
+            <div class="dcard__countdown" data-countdown={drop.launchDate}>
+              <div class="cd-block"><span class="cd-n" data-cd-days>--</span><span class="cd-l u-code">días</span></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-block"><span class="cd-n" data-cd-hours>--</span><span class="cd-l u-code">horas</span></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-block"><span class="cd-n" data-cd-mins>--</span><span class="cd-l u-code">min</span></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-block"><span class="cd-n" data-cd-secs>--</span><span class="cd-l u-code">seg</span></div>
+            </div>
+          )}
+
+          <div class="dcard__foot">
+            <span class="u-code">{drop.productSlugs.length > 0 ? `${drop.productSlugs.length} prendas` : "Próximamente"}</span>
+            {drop.productSlugs.length > 0 && (
+              <a class="btn btn--ghost" href={`/drops/${drop.slug}`}>Ver colección</a>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  .dh { padding-block: clamp(5rem, 12vw, 9rem) clamp(2rem, 5vw, 4rem); display: grid; gap: var(--sp-4); }
+  .dh h1 { font-size: var(--fs-700); }
+
+  .drops-list { display: grid; gap: clamp(1.25rem, 3vw, 2rem); }
+
+  .dcard {
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border-radius: var(--r-lg);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--sh-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    display: grid;
+    gap: var(--sp-5);
+  }
+  .dcard[data-status="upcoming"] { opacity: .82; }
+
+  .dcard__header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; }
+  .dcard__meta { display: grid; gap: var(--sp-2); }
+  .dcard__num { color: var(--text-mute); }
+  .dcard__name { font-size: var(--fs-600); line-height: 0.92; }
+  .dcard__season { color: var(--text-soft); }
+
+  .dcard__badge {
+    display: inline-flex; align-items: center;
+    padding: .4em 1em;
+    border-radius: var(--r-pill);
+    font-family: var(--font-label);
+    font-size: var(--fs-200);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .dcard__badge--active  { background: var(--loirn-ink); color: var(--loirn-paper); }
+  .dcard__badge--upcoming{ background: transparent; box-shadow: inset 0 0 0 1.5px var(--border-strong); color: var(--text-soft); }
+  .dcard__badge--soldout { background: var(--loirn-ash); color: var(--loirn-paper); }
+
+  .dcard__desc { color: var(--text-soft); max-width: 64ch; line-height: var(--lh-body); }
+
+  /* Countdown */
+  .dcard__countdown {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-4) var(--sp-5);
+    background: var(--loirn-black);
+    border-radius: var(--r-md);
+    width: fit-content;
+  }
+  .cd-block { display: flex; flex-direction: column; align-items: center; gap: var(--sp-1); }
+  .cd-n {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 1rem + 4vw, 3.8rem);
+    font-weight: 600;
+    color: var(--loirn-paper);
+    line-height: 1;
+    min-width: 2ch;
+    text-align: center;
+  }
+  .cd-l { color: rgba(235,236,236,.45); font-size: var(--fs-100); }
+  .cd-sep { font-family: var(--font-display); font-size: clamp(1.8rem, 1rem + 3vw, 3rem); color: rgba(235,236,236,.3); line-height: 1; }
+
+  .dcard__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+  .dcard__foot .u-code { color: var(--text-mute); }
+
+  @media (max-width: 560px) {
+    .dcard__countdown { gap: var(--sp-2); padding: var(--sp-3); }
+    .cd-sep { display: none; }
+  }
+</style>
+
+<script>
+  function initCountdowns() {
+    document.querySelectorAll<HTMLElement>("[data-countdown]").forEach((el) => {
+      const target = new Date(el.dataset.countdown!).getTime();
+      const days = el.querySelector("[data-cd-days]");
+      const hours = el.querySelector("[data-cd-hours]");
+      const mins = el.querySelector("[data-cd-mins]");
+      const secs = el.querySelector("[data-cd-secs]");
+
+      function tick() {
+        const diff = target - Date.now();
+        if (diff <= 0) {
+          el.closest(".dcard")?.setAttribute("data-status", "active");
+          el.remove();
+          return;
+        }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        if (days) days.textContent = String(d).padStart(2, "0");
+        if (hours) hours.textContent = String(h).padStart(2, "0");
+        if (mins) mins.textContent = String(m).padStart(2, "0");
+        if (secs) secs.textContent = String(s).padStart(2, "0");
+      }
+      tick();
+      const id = setInterval(tick, 1000);
+      // Cleanup en navegacion ClientRouter
+      document.addEventListener("astro:before-swap", () => clearInterval(id), { once: true });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initCountdowns);
+</script>
